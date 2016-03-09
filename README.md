@@ -1,3 +1,3 @@
-<https://tudarmstadt-lt.github.io/lt.bot/>
-# lt.bot
+<https://tudarmstadt-lt.github.io/topicrawler/>
+# topicrawler
 TO APPEAR SOON - STAY TUNED
