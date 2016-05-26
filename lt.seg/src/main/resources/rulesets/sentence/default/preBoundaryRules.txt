@@ -1,0 +1,31 @@
+##
+# 
+# Define positive or negative regex rules for tokens before a sentence boundary. The boundary itself is not part of the token.
+# 
+# A positive rule has the form '+ <regex>', a negative rule has the form '- <regex>'.  
+#
+
+##
+# a single unicode letter before a sentence boundary -> no sentence. (Example: A. Miller)
+#
+- \P{M}\p{M}*
+
+##
+# strings with multiple dots (Example: i.e., U.S.A.)
+#
+- .*\P{M}\p{M}*\.\P{M}\p{M}*.*
+
+##
+# urls (rough estimate)
+#
+- (http://)?www[a-zA-Z/\.]*
+
+##
+# years (between 1000 and 2999)
+#
++ [1-2][0-9][0-9][0-9]
+
+##
+# Digits with dots or hyphens
+#
+- [0-9\.-]+

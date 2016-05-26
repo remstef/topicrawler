@@ -1,0 +1,55 @@
+
+Editing WindERP, School ERP Software, School Management System ,School Management Software (section) - School Computing 
+Wikia Navigation 
+Start a wiki 
+Video Games 
+Entertainment 
+Lifestyle 
+Log in 
+Username 
+Password 
+Forgot your password? 
+Stay logged in 
+Or 
+Connect 
+Sign up 
+School Com… 
+Editing (section) 
+WindERP, School ERP Software, School Management System ,School Management Software 
+Need help editing?
+Notifications
+0 
+You are not logged in.
+The rich text editor does not work with JavaScript switched off. Please either enable it in your browser options, or visit your 
+preferences to switch to the old MediaWiki editor
+<h2>Pro Features</h2>
+<ul><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Hostel%5C%2FDormitory%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FHostel_Management%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FHostel_Management%20Hostel%5C%2FDormitory%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Hostel_Management">Hostel/Dormitory</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Library%20Management%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FLibrary%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FLibrary%20Library%20Management%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Library">Library Management</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Tally%20Integration%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FTally_Integration%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FTally_Integration%20Tally%20Integration%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Tally_Integration">Tally Integration</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Quick%20Fee%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FQuick_Fee%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FQuick_Fee%20Quick%20Fee%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Quick_Fee">Quick Fee</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Inventory%20Management%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FInventory_Management%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FInventory_Management%20Inventory%20Management%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Inventory_Management">Inventory Management</a>
+</li></ul>
+  
+Loading editor 
+Below are some commonly used wiki markup codes. Simply click on what you want to use and it will appear in the edit box above.
+Insert: – — … ° ≈ ≠ ≤ ≥ ± − × ÷ ← → · §  Sign your username: ~~~~ 
+Wiki markup: {{}}   |   []   [[]]   [[Category:]]   #REDIRECT [[]]   <s></s>   <sup></sup>   <sub></sub>   <code></code>   <blockquote></blockquote>   <ref></ref>   {{Reflist}}   <references/>   <includeonly></includeonly>   <noinclude></noinclude>   {{DEFAULTSORT:}}   <nowiki></nowiki>   <!-- -->  <span class="plainlinks"></span> Symbols: ~ | ¡ ¿ † ‡ ↔ ↑ ↓ • ¶   # ¹ ² ³ ½ ⅓ ⅔ ¼ ¾ ⅛ ⅜ ⅝ ⅞ ∞   ‘ “ ’ ” «»   ¤ ₳ ฿ ₵ ¢ ₡ ₢ $ ₫ ₯ € ₠ ₣ ƒ ₴ ₭ ₤ ℳ ₥ ₦ № ₧ ₰ £ ៛ ₨ ₪ ৳ ₮ ₩ ¥   ♠ ♣ ♥ ♦ 
+View this template 
+This field is a spam trap. DO NOT fill it in! 
+Retrieved from "
+http://schoolcomputing.wikia.com/wiki/WindERP,_School_ERP_Software,_School_Management_System_,School_Management_Software"
+Edit Summary 
+/* Pro Features */ 
+Preview 
+Show changes 
+
+4332
+Editing WindERP, School ERP Software, School Management System ,School Management Software (section) - School Computing Wikia Navigation Start a wiki Video Games Entertainment Lifestyle Log in Username Password Forgot your password? Stay logged in Or Connect Sign up School Com… Editing (section) WindERP, School ERP Software, School Management System ,School Management Software Need help editing? Notifications 0 You are not logged in. The rich text editor does not work with JavaScript switched off. Please either enable it in your browser options, or visit your preferences to switch to the old MediaWiki editor <h2>Pro Features</h2>
+<ul><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Hostel%5C%2FDormitory%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FHostel_Management%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FHostel_Management%20Hostel%5C%2FDormitory%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Hostel_Management">Hostel/Dormitory</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Library%20Management%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FLibrary%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FLibrary%20Library%20Management%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Library">Library Management</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Tally%20Integration%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FTally_Integration%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FTally_Integration%20Tally%20Integration%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Tally_Integration">Tally Integration</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Quick%20Fee%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FQuick_Fee%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FQuick_Fee%20Quick%20Fee%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Quick_Fee">Quick Fee</a>
+</li><li><a data-rte-meta="%7B%22type%22%3A%22external%22%2C%22text%22%3A%22Inventory%20Management%22%2C%22link%22%3A%22http%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FInventory_Management%22%2C%22linktype%22%3A%22text%22%2C%22wasblank%22%3Afalse%2C%22wikitext%22%3A%22%5Bhttp%3A%5C%2F%5C%2Fwww.winderp.com%5C%2FERP_Features%5C%2FInventory_Management%20Inventory%20Management%5D%22%7D" data-rte-instance="343-133370150652a6511e215e0" rel="nofollow" class="external text" href="http://www.winderp.com/ERP_Features/Inventory_Management">Inventory Management</a>
+</li></ul>
+
+   Loading editor Below are some commonly used wiki markup codes. Simply click on what you want to use and it will appear in the edit box above. Insert: – — … ° ≈ ≠ ≤ ≥ ± − × ÷ ← → · §  Sign your username: ~~~~ Wiki markup: {{}}   |   []   [[]]   [[Category:]]   #REDIRECT [[]]   <s></s>   <sup></sup>   <sub></sub>   <code></code>   <blockquote></blockquote>   <ref></ref>   {{Reflist}}   <references/>   <includeonly></includeonly>   <noinclude></noinclude>   {{DEFAULTSORT:}}   <nowiki></nowiki>   <!-- -->  <span class="plainlinks"></span> Symbols: ~ | ¡ ¿ † ‡ ↔ ↑ ↓ • ¶   # ¹ ² ³ ½ ⅓ ⅔ ¼ ¾ ⅛ ⅜ ⅝ ⅞ ∞   ‘ “ ’ ” «»   ¤ ₳ ฿ ₵ ¢ ₡ ₢ $ ₫ ₯ € ₠ ₣ ƒ ₴ ₭ ₤ ℳ ₥ ₦ № ₧ ₰ £ ៛ ₨ ₪ ৳ ₮ ₩ ¥   ♠ ♣ ♥ ♦ View this template This field is a spam trap. DO NOT fill it in! Retrieved from "http://schoolcomputing.wikia.com/wiki/WindERP,_School_ERP_Software,_School_Management_System_,School_Management_Software" Edit Summary /* Pro Features */ Preview Show changes

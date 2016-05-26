@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- HERITRIX 3 CRAWL JOB CONFIGURATION FILE for use with ltbot3 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+ 
+ <context:annotation-config/>
+
+ <bean id="simpleOverrides" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+  <property name="properties">
+   <value>
+
+# next line is commented for security reasons
+#metadata.operatorContactUrl=http://www.kdsl.tu-darmstadt.de/de/kdsl/research-program/crawling-and-semantic-structuring/
+metadata.userAgentTemplate=Mozilla/5.0 (compatible; ltbot/0.3.6 +@OPERATOR_CONTACT_URL@)
+metadata.jobName=
+metadata.description=
+
+maxHops.maxHops=20
+
+# heritrix defaults in order of occurrence: (5, 3000, 300, 30000, 0) / lt defaults: (0, 100, 180, 3000, 0)
+disposition.delayFactor=0
+disposition.minDelayMs=100
+disposition.respectCrawlDelayUpToSeconds=180
+disposition.maxDelayMs=3000
+disposition.maxPerHostBandwidthUsageKbSec=0
+
+# Perplexity priority settings
+perplexityProducer.serviceID=defaultlm
+perplexityProducer.rmihost=localhost
+perplexityProducer.rmiport=1099
+# default: 5e2,5e3,Infinity
+perplexityPrioritizer.assignmentBoundaries=5e2,5e3,Infinity
+perplexityPrioritizer.maxValue=5e4
+perplexityPrioritizer.maxPrecedence=127
+
+# heritrix defaults: (0, 1200, 20000); 50 MB = 50000000, 1 Min. = 60, 2 Sec. = 2000
+fetchHttp.maxLengthBytes=50000000
+fetchHttp.timeoutSeconds=60
+fetchHttp.soTimeoutMs=2000
+
+# heritrix defaults in order of occurrence: (25, false)
+crawlController.maxToeThreads=25
+crawlController.pauseAtStart=true
+
+# heritrix default = -1 (no automatic checkpointing)
+checkpointService.checkpointIntervalMinutes=-1
+
+# heritrix defaults in order of occurrence: (25, 0, 0), Note: if cachePercent==0 and cacheSize==0 then cachePercent=60
+bdb.expectedConcurrency=25
+bdb.cachePercent=0
+bdb.cacheSize=0
+
+# limit crawl
+crawlLimiter.maxBytesDownload=0
+crawlLimiter.maxDocumentsDownload=0
+crawlLimiter.maxTimeSeconds=0
+
+# heritrix defaults: (180, 5, 100, 300000, -1/3000); lt defaults: (90, 2, 0, 600000, 10000)
+frontier.retryDelaySeconds=90
+frontier.maxRetries=3
+frontier.errorPenaltyAmount=0
+frontier.snoozeLongMs=600000
+frontier.queueTotalBudget=4096
+
+# 100 MB = 100000000, 20 MB = 20000000, current language codes: default, am
+sentenceWriterHtml.languageCode=default
+sentenceWriterHtml.maxFileSizeBytes=100000000
+warcWriterPdf.maxFileSizeBytes=100000000
+warcWriterHtml.maxFileSizeBytes=100000000
+warcWriterRobots.maxFileSizeBytes=20000000
+
+warcWriterHtml.enabled=false
+warcWriterPdf.enabled=false
+mirrorWriterHtml.enabled=false
+warcWriterRobots.enabled=false
+plaintextWriterHtml.enabled=false
+sentenceWriterHtml.enabled=false
+
+   </value>
+  </property>
+ </bean>
+ <bean id="longerOverrides" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+  <property name="properties">
+   <props>
+    <prop key="seeds.textSource.value">
+# INITIAL URLS HERE http://example.example/example
+http://127.0.0.1/test
+    </prop>
+    <prop key="acceptSurts.surtsSource.value">
+# ACCEPT SURTS HERE: example.com, http://www.example.edu/path1/, +http://(org,example,
+    </prop>
+    <prop key="acceptDomains.surtsSource.value">
+# ACCEPT DOMAINS FROM SURTS HERE
+    </prop>
+    <prop key="rejectSurts.surtsSource.value">
+# REJECT SURTS HERE
+    </prop>
+   </props>
+  </property>
+ </bean>
+
+<!-- BEANS BEANS BEANS -->
+ <bean id="metadata" class="org.archive.modules.CrawlMetadata" autowire="byName" />
+ <bean id="seeds" class="org.archive.modules.seeds.TextSeedModule">
+  <property name="textSource">
+   <bean class="org.archive.spring.ConfigString">
+    <property name="value">
+     <value>
+# [see override above]
+     </value>
+    </property>
+   </bean>
+  </property>
+ </bean>
+ <bean id="acceptSurts" class="org.archive.modules.deciderules.surt.SurtPrefixedDecideRule">
+  <property name="decision" value="ACCEPT"/>
+  <property name="seedsAsSurtPrefixes" value="true"/>
+  <property name="surtsSource">
+   <bean class="org.archive.spring.ConfigString">
+    <property name="value">
+     <value>
+# [see override above]
+     </value>
+    </property> 
+   </bean>
+  </property>
+ </bean>
+ <bean id="acceptDomains" class="org.archive.modules.deciderules.surt.OnDomainsDecideRule">
+  <property name="decision" value="ACCEPT"/>
+  <property name="seedsAsSurtPrefixes" value="false"/>
+  <property name="surtsSource">
+   <bean class="org.archive.spring.ConfigString">
+    <property name="value">
+     <value>
+# [see override above]
+     </value>
+    </property> 
+   </bean>
+  </property>
+ </bean>
+ <bean id="rejectSurts" class="org.archive.modules.deciderules.surt.SurtPrefixedDecideRule">
+  <property name="decision" value="REJECT"/>
+  <property name="seedsAsSurtPrefixes" value="false"/>
+  <property name="surtsDumpFile" value="${launchId}/negative-surts.dump"/> 
+  <property name="surtsSource">
+   <bean class="org.archive.spring.ConfigString">
+    <property name="value">
+     <value>
+# [see override above]
+     </value>
+    </property> 
+   </bean>
+  </property>
+ </bean>
+ <bean id="maxHops" class="org.archive.modules.deciderules.TooManyHopsDecideRule" />
+ <bean id="rejectRegexes" class="org.archive.modules.deciderules.MatchesListRegexDecideRule">
+  <property name="decision" value="REJECT"/>
+  <property name="listLogicalOr" value="true" />
+  <property name="regexList">
+   <list>
+    <value>.*(?i)(\.pdf)$</value>
+    <value>.*(?i)(\.(avi|wmv|mpe?g|mp3|m4v|mp4|ogg|midi|wav))$</value>
+    <value>.*(?i)(\.(rar|zip|tar|gz|7z))$</value>
+    <value>.*(?i)(\.(doc|xls|odt))$</value>
+    <value>.*(?i)(\.(conf))$</value>
+    <value>.*(?i)(\.(swf|flv))$</value>
+    <value>.*(?i)(\.(js|css))$</value>
+    <value>.*(?i)(\.(exe|bat|sh|py|pl))$</value>
+    <value>.*(?i)(\.(iso|dmg))$</value>
+    <value>.*(?i)(\.(bmp|gif|jpe?g|png|svg|tiff?|ico))$</value>
+   </list>
+  </property>
+ </bean>
+
+ <!-- SCOPE -->
+ <bean id="scope" class="org.archive.modules.deciderules.DecideRuleSequence">
+  <property name="logToFile" value="false" />
+  <property name="rules">
+   <list>
+    <!-- ACCEPT UNBOUNDED CRAWL --><bean class="org.archive.modules.deciderules.AcceptDecideRule"/>
+    <!-- REJECT   BOUNDED CRAWL --><bean class="org.archive.modules.deciderules.RejectDecideRule"/>
+    <!-- ACCEPT --><ref bean="acceptSurts"/>
+    <!-- ACCEPT --><ref bean="acceptDomains"/>
+    <!-- ACCEPT --><!-- bean class="org.archive.modules.deciderules.TransclusionDecideRule"><property name="maxTransHops" value="1"/><property name="maxSpeculativeHops" value="1" /></bean -->
+    <!-- REJECT --><ref bean="maxHops"/>
+    <!-- REJECT --><ref bean="rejectSurts"/>
+    <!-- REJECT --><ref bean="rejectRegexes"/>
+    <!-- REJECT --><bean class="org.archive.modules.deciderules.PathologicalPathDecideRule" />
+    <!-- REJECT --><bean class="org.archive.modules.deciderules.TooManyPathSegmentsDecideRule" />
+    <!-- ACCEPT --><bean class="org.archive.modules.deciderules.PrerequisiteAcceptDecideRule" />
+    <!-- ACCEPT --><bean class="org.archive.modules.deciderules.SeedAcceptDecideRule" />
+    <!-- REJECT --><bean class="org.archive.modules.deciderules.SchemeNotInSetDecideRule" />
+   </list>
+  </property>
+ </bean>
+
+ <!-- PRIORITY -->
+ <bean id="sentenceMaker" class="de.tudarmstadt.lt.ltbot.writer.SentenceMaker">
+  <property name="minLength" value="5" />
+  <property name="targetLanguageCode" value="default" />
+ </bean>
+ <bean id="perplexityProducer" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValueProducerPerplexity" autowire="byName">
+  <property name="sentenceMaker">
+   <ref bean="sentenceMaker" />
+  </property>
+  <property name="textExtractor">
+   <bean class="de.tudarmstadt.lt.ltbot.text.TextExtractor">
+    <property name="utf8Cleaner">
+     <bean class="de.tudarmstadt.lt.ltbot.text.UTF8CleanerExt" />
+    </property>
+    <property name="htmlTextExtractor">
+     <bean class="de.tudarmstadt.lt.ltbot.text.JSoupTextExtractor" />
+     <!-- bean class="de.tudarmstadt.lt.ltbot.text.BoilerpipeTextExtractor" /-->
+    </property>
+   </bean>
+  </property>
+  <property name="shouldProcessRule">
+   <bean class="org.archive.modules.deciderules.DecideRuleSequence">
+    <property name="rules">
+     <list>
+      <bean class="org.archive.modules.deciderules.RejectDecideRule"/>
+      <bean class="org.archive.modules.deciderules.ContentTypeMatchesRegexDecideRule">
+       <property name="decision" value="ACCEPT"/>
+       <property name="regex" value="^.*(?i)(text.*/.*html.*$)"/>
+      </bean>
+      <bean class="org.archive.modules.deciderules.MatchesFilePatternDecideRule">
+       <property name="decision" value="ACCEPT"/>
+       <property name="usePreset" value="CUSTOM"/>
+       <property name="regex" value="^.*(?i)(\.x?html?$)"/>
+      </bean>
+      <bean class="org.archive.modules.deciderules.MatchesFilePatternDecideRule">
+       <property name="decision" value="REJECT"/>
+       <property name="usePreset" value="CUSTOM"/>
+       <property name="regex" value="^(?i)(.*robots.txt)$"/>
+      </bean>
+     </list>
+    </property>
+   </bean>
+  </property>
+ </bean>
+ <bean id="perplexityPrioritizer" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValuePrioritizer" />
+ <bean id="perplexityLoggerDispositionChain" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValueLogger" />
+  
+ <!-- CANDIDATE CHAIN -->
+ <bean id="candidateScoper" class="org.archive.crawler.prefetch.CandidateScoper" />
+ <bean id="preparer" class="org.archive.crawler.prefetch.FrontierPreparer" />
+ <bean id="candidateProcessors" class="org.archive.modules.CandidateChain">
+  <property name="processors">
+   <list>
+    <ref bean="candidateScoper"/>
+    <ref bean="preparer"/>
+    <ref bean="perplexityPrioritizer"/>
+    <!--ref bean="perplexityLoggerCandidateChain"/-->
+   </list>
+  </property>
+ </bean>
+
+ <!-- FETCH CHAIN --> 
+ <bean id="preselector" class="org.archive.crawler.prefetch.Preselector" />
+ <bean id="preconditions" class="org.archive.crawler.prefetch.PreconditionEnforcer" />
+ <bean id="fetchDns" class="org.archive.modules.fetcher.FetchDNS">
+  <property name="digestContent" value="false" />
+ </bean>
+ <bean id="fetchHttp" class="org.archive.modules.fetcher.FetchHTTP">
+  <property name="defaultEncoding" value="UTF-8" />
+  <property name="digestContent" value="false" />
+ </bean>
+ <bean id="extractorHttp" class="org.archive.modules.extractor.ExtractorHTTP" />
+ <bean id="extractorHtml" class="org.archive.modules.extractor.ExtractorHTML">
+  <property name="extractJavascript" value="false"/>
+  <property name="extractValueAttributes" value="false" />
+  <property name="ignoreFormActionUrls" value="true" />
+  <property name="treatFramesAsEmbedLinks" value="false" />
+ </bean>
+ <bean id="extractorJs" class="org.archive.modules.extractor.ExtractorJS" />
+ <bean id="fetchProcessors" class="org.archive.modules.FetchChain">
+  <property name="processors">
+   <list>
+    <ref bean="preselector"/>
+    <ref bean="preconditions"/>
+    <ref bean="fetchDns"/>
+    <ref bean="fetchHttp"/>
+    <ref bean="extractorHttp"/>
+    <ref bean="extractorHtml"/>
+   </list>
+  </property>
+ </bean>
+
+ <!-- DISPOSITION CHAIN -->
+ <bean id="htmlrule" class="org.archive.modules.deciderules.DecideRuleSequence">
+  <property name="rules">
+   <list>
+    <bean class="org.archive.modules.deciderules.RejectDecideRule"/>
+    <bean class="org.archive.modules.deciderules.ContentTypeMatchesRegexDecideRule">
+     <property name="decision" value="ACCEPT"/>
+     <property name="regex" value="^.*(?i)(text.*/.*html.*$)"/>
+    </bean>
+    <bean class="org.archive.modules.deciderules.MatchesFilePatternDecideRule">
+     <property name="decision" value="ACCEPT"/>
+     <property name="usePreset" value="CUSTOM"/>
+     <property name="regex" value="^.*(?i)(\.html?$)"/>
+    </bean>
+    <bean class="org.archive.modules.deciderules.MatchesFilePatternDecideRule">
+     <property name="decision" value="REJECT"/>
+     <property name="usePreset" value="CUSTOM"/>
+     <property name="regex" value="^(?i)(.*robots.txt)$"/>
+    </bean>
+   </list>
+  </property>
+ </bean>
+ <bean id="pdfrule" class="org.archive.modules.deciderules.DecideRuleSequence">
+  <property name="rules">
+   <list>
+    <bean class="org.archive.modules.deciderules.RejectDecideRule"/>
+    <bean class="org.archive.modules.deciderules.ContentTypeMatchesRegexDecideRule">
+     <property name="decision" value="ACCEPT"/>
+     <property name="regex" value="^.*(?i)(application.*/.*pdf.*$)"/>
+    </bean>
+    <bean class="org.archive.modules.deciderules.MatchesFilePatternDecideRule">
+     <property name="decision" value="ACCEPT"/>
+     <property name="usePreset" value="CUSTOM"/>
+     <property name="regex" value="^.*(?i)(\.pdf$)"/>
+    </bean>
+   </list>
+  </property>
+ </bean>
+ <bean id="warcWriterPdf" class="org.archive.modules.writer.WARCWriterProcessor">
+  <property name="shouldProcessRule">
+   <ref bean="pdfrule"/>
+  </property>
+  <property name="prefix" value="PDF"/>
+  <property name="writeRequests" value="false"/>
+  <property name="writeMetadata" value="false"/>
+  <property name="writeRevisitForIdenticalDigests" value="false"/>
+  <property name="writeRevisitForNotModified" value="false"/>
+ </bean>
+ <bean id="warcWriterHtml" class="org.archive.modules.writer.WARCWriterProcessor">
+  <property name="shouldProcessRule">
+   <ref bean="htmlrule"/>
+  </property>
+  <property name="prefix" value="HTML"/>
+  <property name="writeRequests" value="false"/>
+  <property name="writeMetadata" value="false"/>
+  <property name="writeRevisitForIdenticalDigests" value="false"/>
+  <property name="writeRevisitForNotModified" value="false"/>
+ </bean>
+ <bean id="warcWriterRobots" class="org.archive.modules.writer.WARCWriterProcessor">
+  <property name="shouldProcessRule">
+   <bean class="org.archive.modules.deciderules.DecideRuleSequence">
+    <property name="rules">
+     <list>
+      <bean class="org.archive.modules.deciderules.RejectDecideRule"/>
+      <bean class="org.archive.modules.deciderules.MatchesFilePatternDecideRule">
+       <property name="decision" value="ACCEPT"/>
+       <property name="usePreset" value="CUSTOM"/>
+       <property name="regex" value="^(?i)(.*robots.txt)$"/>
+      </bean>
+     </list>
+    </property>
+   </bean>
+  </property>
+  <property name="prefix" value="ROBOTS"/>
+  <property name="writeRequests" value="false"/>
+  <property name="writeMetadata" value="false"/>
+  <property name="writeRevisitForIdenticalDigests" value="false"/>
+  <property name="writeRevisitForNotModified" value="false"/>
+ </bean>
+ <bean id="mirrorWriterHtml" class="org.archive.modules.writer.MirrorWriterProcessor">
+  <property name="shouldProcessRule">
+   <ref bean="htmlrule"/>
+  </property>
+ </bean>
+ <bean id="plaintextWriterHtml" class="de.tudarmstadt.lt.ltbot.writer.PlainTextDocumentWriter">
+  <property name="shouldProcessRule">
+   <ref bean="htmlrule"/>
+  </property>
+  <property name="filenameFormat" value="{time}-{num}.txt.gz" />
+  <property name="prefix" value="HTML"/>
+  <property name="textExtractor">
+   <bean class="de.tudarmstadt.lt.ltbot.text.TextExtractor">
+    <property name="utf8Cleaner">
+     <bean class="de.tudarmstadt.lt.ltbot.text.UTF8CleanerMin" />
+    </property>
+    <property name="htmlTextExtractor">
+     <bean class="de.tudarmstadt.lt.ltbot.text.JSoupTextExtractor" />
+     <!--bean class="de.tudarmstadt.lt.ltbot.text.BoilerpipeTextExtractor" /-->
+    </property>
+   </bean>
+  </property>
+ </bean>
+ <bean id="sentenceWriterHtml" class="de.tudarmstadt.lt.ltbot.writer.SentenceWriter">
+  <property name="shouldProcessRule">
+   <ref bean="htmlrule"/>
+  </property>
+  <property name="filenameFormat" value="{time}-{num}.txt.gz" />
+  <property name="prefix" value="HTML"/>
+  <property name="sentenceMaker">
+   <ref bean="sentenceMaker" />
+  </property>
+  <property name="textExtractor">
+   <bean class="de.tudarmstadt.lt.ltbot.text.TextExtractor">
+    <property name="utf8Cleaner">
+     <bean class="de.tudarmstadt.lt.ltbot.text.UTF8CleanerMin" />
+    </property>
+    <property name="htmlTextExtractor">
+     <bean class="de.tudarmstadt.lt.ltbot.text.JSoupTextExtractor" />
+     <!-- bean class="de.tudarmstadt.lt.ltbot.text.BoilerpipeTextExtractor" /-->
+    </property>
+   </bean>
+  </property>
+ </bean>
+ <bean id="candidates" class="org.archive.crawler.postprocessor.CandidatesProcessor" />
+ <bean id="disposition" class="org.archive.crawler.postprocessor.DispositionProcessor" />
+ <bean id="dispositionProcessors" class="org.archive.modules.DispositionChain">
+  <property name="processors">
+   <list>
+    <ref bean="warcWriterPdf"/>
+    <ref bean="warcWriterHtml"/>
+    <ref bean="mirrorWriterHtml"/>
+    <ref bean="warcWriterRobots"/>
+    <ref bean="perplexityProducer"/>
+    <ref bean="plaintextWriterHtml"/>
+    <ref bean="sentenceWriterHtml"/>
+    <ref bean="candidates"/>
+    <ref bean="perplexityLoggerDispositionChain"/>
+    <ref bean="disposition"/>
+   </list>
+  </property>
+ </bean>
+ 
+ <!-- OTHER OPTIONAL BEANS -->
+ <bean id="crawlLimiter" class="org.archive.crawler.framework.CrawlLimitEnforcer" />
+ <bean id="checkpointService" class="org.archive.crawler.framework.CheckpointService">
+  <property name="forgetAllButLatest" value="false"/>
+ </bean>
+ <bean id="diskSpaceMonitor" class="org.archive.crawler.monitor.DiskSpaceMonitor">
+  <property name="pauseThresholdMiB" value="500"/>
+  <property name="monitorConfigPaths" value="true"/>
+  <property name="monitorPaths">
+   <list>
+    <value>warcs/</value>
+    <value>sentences/</value>
+    <value>plaintexts/</value>
+    <value>mirror/</value>
+   </list>
+  </property>
+ </bean>
+
+ <!-- REQUIRED STANDARD BEANS -->
+ <bean id="crawlController" class="org.archive.crawler.framework.CrawlController" />
+ <bean id="frontier" class="org.archive.crawler.frontier.BdbFrontier">
+  <property name="queuePrecedencePolicy">
+   <bean class="org.archive.crawler.frontier.precedence.HighestUriQueuePrecedencePolicy" />
+   <!-- <bean class="org.archive.crawler.frontier.precedence.BaseQueuePrecedencePolicy" /> -->
+  </property>
+  <property name="extractIndependently" value="true" />
+  <property name="extract404s" value="false" />
+ </bean>
+ 
+ <bean id="uriUniqFilter" class="org.archive.crawler.util.BdbUriUniqFilter" />
+ <bean id="statisticsTracker" class="org.archive.crawler.reporting.StatisticsTracker" autowire="byName" />
+ <bean id="loggerModule" class="org.archive.crawler.reporting.CrawlerLoggerModule">
+  <property name="logExtraInfo" value="true"/>
+ </bean>
+ <bean id="sheetOverlaysManager" autowire="byType" class="org.archive.crawler.spring.SheetOverlaysManager" />
+ <bean id="bdb" class="org.archive.bdb.BdbModule" />
+ <bean id="cookieStorage" class="org.archive.modules.fetcher.BdbCookieStorage" />
+ <bean id="serverCache" class="org.archive.modules.net.BdbServerCache" />
+ <bean id="configPathConfigurer" class="org.archive.spring.ConfigPathConfigurer" />
+ 
+</beans>

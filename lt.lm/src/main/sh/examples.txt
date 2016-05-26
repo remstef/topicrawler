@@ -1,0 +1,30 @@
+mvn install:install-file -Dfile=berkeleylm.jar -Dsources=berkeleylm.jar -DgroupId=edu.berkeley.nlp -DartifactId=berkeleylm -Dversion=1.1.6 -Dpackaging=jar
+
+lm de.tudarmstadt.lt.lm.app.StartLM \
+-d ~/data/lm/pedocs-train/ \
+-i pedocslm \
+-h 192.168.200.101 \
+-pt BreakIteratorStringProvider \
+-t BerkeleyLM
+
+export JAVA_OPTS="\
+-Xmx10g \
+-Dproject.properties=project.properties \
+-Dlogback.configurationFile=logback.xml \
+-DpropertyFile=project.properties \
+-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=9010 \
+-Dcom.sun.management.jmxremote.local.only=false \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+"
+
+lm de.tudarmstadt.lt.lm.app.PerplexityClient \
+-d ~/data/lm/pedocs-test/ \
+-i pedocslm \
+-h 192.168.200.101
+
+jconsole localhost:9010
+
+ssh hn2 "hdfs dfs -text lm/x_counts/countsjoined/p* | gzip -c " > x.ngram.counts.joined.txt.gz
+ssh hn2 "hdfs dfs -text lm/x_counts/vocab/p* | gzip -c " > x.testlm.ngram.vocabulary.txt.gz

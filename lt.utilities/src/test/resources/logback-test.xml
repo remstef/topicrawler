@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  
+  <jmxConfigurator />
+
+  <appender name="sysout" class="ch.qos.logback.core.ConsoleAppender">
+    <Target>System.err</Target>
+    <encoder>
+      <pattern>%d{ISO8601} %-5p %c{1}: %m%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="warn">
+    <appender-ref ref="sysout"/>
+  </root>
+
+  <logger name="de.tudarmstadt.lt" additivity="false" level="${verbosity:-warn}">
+    <appender-ref ref="sysout"/>
+  </logger>
+
+</configuration> 

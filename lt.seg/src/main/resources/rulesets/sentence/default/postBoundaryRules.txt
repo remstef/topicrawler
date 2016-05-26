@@ -1,0 +1,14 @@
+##
+# 
+# Define positive or negative regex rules for tokens after a sentence boundary. The boundary itself is not part of the token.
+# 
+# A positive rule has the form '+ <regex>', a negative rule has the form '- <regex>'.  
+#
+
+#
+# small letter after boundary -> no sentence
+- [a-z][a-zA-Z]*[\.!?]?
+
+##
+# if followed by more sentence boundary characters -> no sentence
+- [\.!?,;:]+

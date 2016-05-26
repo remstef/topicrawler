@@ -1,0 +1,109 @@
+#!/bin/bash
+##
+#
+# First parameter is expected to be the main class the rest are arguments to that main class.
+# If no parameters are given MainFinder will be used.
+#
+# used environment variables:
+#
+# 	$JAVA_HOME - java home directory
+# 	$JAVA_OPTS - java options
+#
+#	$LTSEGHOME - if not set, set it to the scripts parent directory
+# 	$NOPROMPT  - if set don't ask for execution, just execute
+#
+##
+
+# exit on error
+set -e
+
+NOPROMPT=true
+
+# define utility functions
+function resolve_file(){
+	cwd=$( pwd )
+	src="${1}"
+	while [ -h "$src" ]; do # resolve $src until the file is no longer a symlink
+  		src_dir="$( cd -P "$( dirname "$src" )" && pwd )"
+  		src="$(readlink "$src")"
+  		[[ $src != /* ]] && src="$src_dir/$src" # if $src was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	cd $cwd
+	echo $src
+}
+
+function resolve_file_dir(){
+	cwd=$( pwd )
+	src=$( resolve_file $1 )
+	src_dir="$( cd -P "$( dirname "$src" )" && pwd )"
+	cd $cwd
+	echo $src_dir
+}
+
+# prepare command
+# resolve src dir of current script
+src_dir=$( resolve_file_dir $0 )
+# ltseghome is either defined or set to the parent of srcdir
+[ -z ${LTSEGHOME} ] && ltseghome="$( cd -P "${src_dir}/.." && pwd )" || ltseghome=$LTSEGHOME
+echo "ltseghome=${ltseghome}" >&2
+# find jars in lib directory and add them to the classpath
+lib_dir=${ltseghome}/lib; while IFS= read -r -d '' f; do cp=${cp}:"${f}"; done < <(find ${lib_dir} -maxdepth 2 -type f -name '*.jar' -print0)
+cp=${cp:1} # remove heading colon
+
+mainclass="de.tudarmstadt.lt.seg.app.Segmenter" # set main class
+
+# skip all -D.. parameters before other parameters and add them to JAVA_OPTS
+D=''
+while [[ $1 == -D* ]]; do
+	D="${D} ${1}"
+	shift
+done
+JAVA_OPTS="${JAVA_OPTS} ${D}"
+args=$@
+
+# add project.properties if not already in JAVA_OPTS
+if [[ ! $JAVA_OPTS == *"-Dproject.properties="* && -e ${ltseghome}/project.properties ]]; then JAVA_OPTS="$JAVA_OPTS -Dproject.properties=\"${ltseghome}/project.properties\"" ; fi
+# add log4j.properties if not already in JAVA_OPTS
+if [[ ! $JAVA_OPTS == *"-Dlog4j.configuration="* && -e ${ltseghome}/log4j.properties ]]; then JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:\"${ltseghome}/log4j.properties\"" ; fi
+# add Xmx and Xms if not set
+if [[ ! $JAVA_OPTS == *"-Xmx"* && ! $JAVA_OPTS == *"-Xms"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xmx128m -Xms128m" ; fi
+
+# try to find JAVA_HOME and set it accordingly
+if [ -z ${JAVA_HOME} ]; then
+  JAVA=$(which java)
+  if [ -z ${JAVA} ]; then
+    echo "Cannot find JAVA. Please set JAVA_HOME or your PATH." >&2
+    exit 1
+  fi
+  # resolve src dir of java runnable
+  #JAVA_BINDIR=$( resolve_file_dir ${JAVA} ) # -> this results in error on mac osx, dirname on the other hand works because mac osx will determine correct JAVA_HOME
+  JAVA_BINDIR=$( dirname ${JAVA} )
+  JAVA_HOME="$( cd -P "${JAVA_BINDIR}/.." && pwd )"
+fi
+[ -z ${JAVA_BINDIR} ] && JAVA_BINDIR="${JAVA_HOME}/bin"
+# define java command if not defined yet. It may be defined in env - including flags!!
+[ -z ${JAVACMD} ] && JAVACMD="${JAVA_BINDIR}/java"
+
+echo "current_dir="$(pwd) >&2
+
+command="${JAVACMD} $JAVA_OPTS -cp ${cp} ${mainclass} ${args}"
+
+# test if command should be really executed and execute in case (question output goes to stderr)
+if [ ! $NOPROMPT ]; then
+	echo -e "java command to execute:\n${command}\n" >&2
+	echo -n "excute? [Y/N]: " >&2
+	read -n 1 test_var
+	echo "" >&2 # just print a new line
+else
+	test_var='y'
+fi
+
+if [ $test_var == 'y' -o $test_var == 'Y' ]
+then
+	echo "Start: `date`." >&2
+	eval "time ${command}" 
+	echo "Finished: `date`." >&2
+else
+	echo "Command execution cancelled." >&2
+fi
+

@@ -1,0 +1,87 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+	
+	<id>dist-standalone</id>
+	<includeBaseDirectory>true</includeBaseDirectory>
+
+	<formats>
+		<format>tar.gz</format>
+		<format>dir</format>
+	</formats>
+	
+	<!-- generate a file that tells us the version also within the archive -->
+	<files>
+		<file>
+			<source>VERSION</source>
+			<destName>${project.artifactId}-v${project.version}</destName>
+		</file>
+	</files>
+
+	<fileSets>
+	
+		<fileSet>
+			<includes>
+				<include>README*</include>
+				<include>LICENSE*</include>
+				<include>NOTICE*</include>
+			</includes>
+		</fileSet>
+	
+		<!-- handle standalone jar -->
+		<fileSet>
+			<directory>${project.build.directory}</directory> <!-- should be target -->
+			<outputDirectory>lib</outputDirectory>
+			<includes>
+				<include>*-jar-with-dependencies.jar</include>
+			</includes>
+		</fileSet>
+	
+		<!-- handle shell scripts -->
+		<fileSet>
+			<directory>src/main/sh</directory>
+			<outputDirectory>bin</outputDirectory>
+			<includes>
+				<include>*</include>
+			</includes>
+		</fileSet>
+		
+		<!-- handle python scripts -->
+		<fileSet>
+			<directory>src/main/py</directory>
+			<outputDirectory>bin</outputDirectory>
+			<includes>
+				<include>*.py</include>
+			</includes>
+		</fileSet>
+		
+		<!-- handle pig scripts -->
+		<fileSet>
+			<directory>src/main/pig</directory>
+			<outputDirectory>bin</outputDirectory>
+			<includes>
+				<include>*.pig</include>
+				<include>*.py</include>
+			</includes>
+		</fileSet>
+		
+		<!-- handle property files -->
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>*.properties</include>
+			</includes>
+		</fileSet>
+		
+		<!-- handle logging configuration files -->
+		<fileSet>
+			<directory>src/main/log</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>logback.*</include>
+			</includes>
+		</fileSet>
+		
+	</fileSets>
+</assembly>

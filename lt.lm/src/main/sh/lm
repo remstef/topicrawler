@@ -1,0 +1,118 @@
+#!/bin/bash
+##
+#
+# First parameter is expected to be the main class the rest are arguments to that main class.
+# If no parameters are given MainFinder will be used.
+#
+# used environment variables:
+#
+# 	$JAVA_HOME - java home directory
+# 	$JAVA_OPTS - java options
+#
+#	$LMHOME    - if not set, set it to the scripts parent directory
+# 	$NOPROMPT  - if set don't ask for execution, just execute
+#
+##
+
+# exit on error
+set -e
+
+NOPROMPT=true
+
+# define utility functions
+function resolve_file(){
+	cwd=$( pwd )
+	src="${1}"
+	while [ -h "$src" ]; do # resolve $src until the file is no longer a symlink
+  		src_dir="$( cd -P "$( dirname "$src" )" && pwd )"
+  		src="$(readlink "$src")"
+  		[[ $src != /* ]] && src="$src_dir/$src" # if $src was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	cd $cwd
+	echo $src
+}
+
+function resolve_file_dir(){
+	cwd=$( pwd )
+	src=$( resolve_file $1 )
+	src_dir="$( cd -P "$( dirname "$src" )" && pwd )"
+	cd $cwd
+	echo $src_dir
+}
+
+# prepare command
+# resolve src dir of current script
+src_dir=$( resolve_file_dir $0 )
+# lmhome is either defined or set to the parent of srcdir
+[ -z ${LMHOME} ] && lmhome="$( cd -P "${src_dir}/.." && pwd )" || lmhome=$LMHOME
+echo "lmhome=${lmhome}" >&2
+# find jars in lib directory and add them to the classpath
+lib_dir=${lmhome}/lib; while IFS= read -r -d '' f; do cp=${cp}:"${f}"; done < <(find ${lib_dir} -maxdepth 2 -type f -name '*.jar' -print0)
+cp=${cp:1} # remove heading colon
+
+# skip all -D.. and -X.. parameters before the actual main class and add them later to JAVA_OPTS
+DX=''
+while [[ "${1}" == -D* || "${1}" == -X* ]]; do
+	DX="${DX} \"${1}\""
+	shift
+done
+
+mainclass=${1:-MainFinder} # set main class if no further arg was provided
+if [ ! -z "$1" ]; then # if at least one arg was passed
+	if [[ $1 == *"MainFinder"* || $1 == *"de.tudarmstadt.lt"* ]]; then  # check if first arg is main class and set args var accordingly
+		args="${@:2}"
+	else
+		mainclass=MainFinder
+		args="$@"
+	fi
+fi
+
+JAVA_OPTS="$JAVA_OPTS ${DX}"
+# add lt.lm.home var if not already set
+if [[ ! $JAVA_OPTS == *"-Dlt.lm.home="* ]]; then JAVA_OPTS="$JAVA_OPTS -Dlt.lm.home=\"${lmhome}\"" ; fi
+# add project.properties if not already in JAVA_OPTS
+if [[ ! $JAVA_OPTS == *"-Dproject.properties="* && -e ${lmhome}/project.properties ]]; then JAVA_OPTS="$JAVA_OPTS -Dproject.properties=\"${lmhome}/project.properties\"" ; fi
+# add logback.xml if not already in JAVA_OPTS
+if [[ ! $JAVA_OPTS == *"-Dlogback.configurationFile="* && -e ${lmhome}/logback.xml ]]; then JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=\"${lmhome}/logback.xml\"" ; fi
+# add Xmx and Xms if not set
+if [[ ! $JAVA_OPTS == *"-Xmx"* && ! $JAVA_OPTS == *"-Xms"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xmx2g -Xms2g" ; fi
+
+# try to find JAVA_HOME and set it accordingly
+if [ -z ${JAVA_HOME} ]; then
+  JAVA=$(which java)
+  if [ -z ${JAVA} ]; then
+    echo "Cannot find JAVA. Please set JAVA_HOME or your PATH." >&2
+    exit 1
+  fi
+  # resolve src dir of java runnable
+  #JAVA_BINDIR=$( resolve_file_dir ${JAVA} ) # -> this results in error on mac osx, dirname on the other hand works because mac osx will determine correct JAVA_HOME
+  JAVA_BINDIR=$( dirname ${JAVA} )
+  JAVA_HOME="$( cd -P "${JAVA_BINDIR}/.." && pwd )"
+fi
+[ -z ${JAVA_BINDIR} ] && JAVA_BINDIR="${JAVA_HOME}/bin"
+# define java command if not defined yet. It may be defined in env - including flags!!
+[ -z ${JAVACMD} ] && JAVACMD="${JAVA_BINDIR}/java"
+
+echo "current_dir="$(pwd) >&2
+
+command="${JAVACMD} -server $JAVA_OPTS -cp ${cp} ${mainclass} ${args}"
+
+# test if command should be really executed and execute in case (question output goes to stderr)
+if [ ! $NOPROMPT ]; then
+	echo -e "java command to execute:\n${command}\n" >&2
+	echo -n "excute? [Y/N]: " >&2
+	read -n 1 test_var
+	echo "" >&2 # just print a new line
+else
+	test_var='y'
+fi
+
+if [ $test_var == 'y' -o $test_var == 'Y' ]
+then
+	echo "Start: `date`." >&2
+	eval "time ${command}" 
+	echo "Finished: `date`." >&2
+else
+	echo "Command execution cancelled." >&2
+fi
+
