@@ -1,0 +1,5 @@
+# mac filesystem related
+**/.DS_STORE
+
+**/.cache-main
+**/.cache-tests
