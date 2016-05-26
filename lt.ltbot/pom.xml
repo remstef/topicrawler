@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tudarmstadt</groupId>
 	<artifactId>lt.ltbot</artifactId>
-	<version>0.4.0c-SNAPSHOT</version>
+	<version>0.4.0c</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -134,7 +134,7 @@
 		<dependency>
 			<groupId>de.tudarmstadt</groupId>
 			<artifactId>lt.lm</artifactId>
-			<version>0.4.1h-SNAPSHOT</version>
+			<version>0.4.1h</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -247,12 +247,12 @@
 		<dependency>
 			<groupId>de.tudarmstadt</groupId>
 			<artifactId>lt.seg</artifactId>
-			<version>0.5.1-SNAPSHOT</version>
+			<version>0.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt</groupId>
 			<artifactId>lt.utilities</artifactId>
-			<version>0.3.7-SNAPSHOT</version>
+			<version>0.3.7</version>
 		</dependency>
 		<dependency>
 		    <groupId>com.syncthemall</groupId>

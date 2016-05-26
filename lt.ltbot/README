@@ -29,50 +29,35 @@
 
    - https://github.com/de-tudarmstadt-lt/core/tree/master/lt.ltbot
    
-      wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
-      tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
+	wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
+	tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
       
 - Start Language Model Server:
 
    - have a corpus ready in a directory which contains .txt files. Ideally txt files are in the format one sentence per line with space separated tokens. Otherwise a naive approach for sentence splitting and tokenization will be used (Standard Java BreakIterators).
-   - start RMI registry (only once per server)
-   
-      bin/lm_startup.sh de.tudarmstadt.lt.lm.app.StartRMI
-   
    - start LM Server:
    
-      bin/lm_startup.sh de.tudarmstadt.lt.lm.app.StartLanguageModelProvider -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
+	bin/lm de.tudarmstadt.lt.lm.app.StartLM -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
    
    - for an explanation of options run 
    
-      bin/lm_startup.sh de.tudarmstadt.lt.lm.app.StartLanguageModelProvider -? 
+	bin/lm de.tudarmstadt.lt.lm.app.StartLM -? 
    
    - the first time the language model is started a file named <dirname>.arpa.gz will be created in the specified corpus directory. This file is used for faster loading of the language model. It can be created using the BerkeleyLM- or SRILM framework too. If this file exists the .txt files are disregarded.
    - If you encounter OutOfMemory Exceptions or want to set different Java Options you have to specify the JAVA_OPTS environment variable, e.g.:
    
-      export JAVA_OPTS='-Xmx20g'
-      
-- Test the language model and note the setting (used for parameters in the CrawlJob later on).
-
-   - Download and run the LanguageModel Web App
-      
-      wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.lm.webapp-0.0.4-war-exec.jar
-      java -jar lt.lm.webapp-0.0.4-war-exec.jar
-      
-   - Open a webbrowser and go to 'http://localhost:8080/lm'. Your created language model server instance should be visible as a separate link. Click on that link to test your language model.  
-   - On the next page you can either enter plain text or a URL to check a website. Note that the website must be reachable from the current machine and the URL must point to a regular website. E.g. redirections are not handled and the process will throw an error.
-   - Check a few websites that you consider good, not so good, bad and really bad for your task and note their perplexity values.    
-   
+	export JAVA_OPTS='-Xmx20g'
+         
 - Start Heritrix v.3.2
    
    - Consider to increase the number of open file handles before the first start of Heritrix (see Heritrix Documentation and http://crawler.archive.org/faq.html#toomanyopenfiles)
    - Consider to increase the heap space memory used by Heritrix, e.g. 10 GB or more:
    
-      export JAVA_OPTS='-Xmx10g'
+	export JAVA_OPTS='-Xmx10g'
    
    - run Heritrix start command:
    
-      bin/heritrix -a <user>:<password> -b / 
+	bin/heritrix -a <user>:<password> -b / 
       
    - open a web browser and go to 'https://server:8443'. Login with the provided user and password (if you run heritrix for the first time with that browser you also have to accept the certificate). 
    - find and click the link 'ltbot-profile'
