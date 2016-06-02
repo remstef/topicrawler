@@ -21,38 +21,25 @@
 
    - crawler.archive.org
 
-<<<<<<< HEAD
 <!-- -->
 
       wget http://builds.archive.org/maven2/org/archive/heritrix/heritrix/3.2.0/heritrix-3.2.0-dist.tar.gz
       tar -xvzf heritrix-*.tar.gz
    
-=======
-	wget http://builds.archive.org/maven2/org/archive/heritrix/heritrix/3.2.0/heritrix-3.2.0-dist.tar.gz
-	tar -xvzf heritrix-*.tar.gz
-
->>>>>>> fae6c26363ef4891f358fc54960ddeaf2059c1ac
 - Download and unpack LtBot binaries into the heritrix directory:
 
    - https://github.com/de-tudarmstadt-lt/core/tree/master/lt.ltbot
 
-<<<<<<< HEAD
 <!-- -->
 
     wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
     tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
       
-=======
-	wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
-	tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
-
->>>>>>> fae6c26363ef4891f358fc54960ddeaf2059c1ac
 - Start Language Model Server:
 
    - have a corpus ready in a directory which contains .txt files. Ideally txt files are in the format one sentence per line with space separated tokens. Otherwise a naive approach for sentence splitting and tokenization will be used (Standard Java BreakIterators).
    - start LM Server:
 
-<<<<<<< HEAD
 <!-- -->
 
     bin/lm de.tudarmstadt.lt.lm.app.StartLM -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
@@ -70,19 +57,6 @@
 
     export JAVA_OPTS='-Xmx20g'
          
-=======
-	bin/lm de.tudarmstadt.lt.lm.app.StartLM -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
-
-   - for an explanation of options run 
-
-	bin/lm de.tudarmstadt.lt.lm.app.StartLM -? 
-
-   - the first time the language model is started a file named <dirname>.arpa.gz will be created in the specified corpus directory. This file is used for faster loading of the language model. It can be created using the BerkeleyLM- or SRILM framework too. If this file exists the .txt files are disregarded.
-   - If you encounter OutOfMemory Exceptions or want to set different Java Options you have to specify the JAVA_OPTS environment variable, e.g.:
-
-	export JAVA_OPTS='-Xmx20g'
-
->>>>>>> fae6c26363ef4891f358fc54960ddeaf2059c1ac
 - Start Heritrix v.3.2
    
    - Consider to increase the number of open file handles before the first start of Heritrix (see Heritrix Documentation and http://crawler.archive.org/faq.html#toomanyopenfiles)
@@ -116,5 +90,4 @@
    - click 'Launch' to run the job and start crawling (reload the page to see process, click on unpause if crawl is paused)
    - click on 'Terminate' and 'Teardown' to end the crawl manually
    - check the directory 'heritrix-3.2.0/jobs/<jobname>/warcs/' for the download files in warc archives (default setting, you can also provide another writer, see Heritrix Documentation for details)
-   
    
