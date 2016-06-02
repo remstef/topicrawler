@@ -1,20 +1,19 @@
-	
-	###
-	#   Copyright 2015
-	#
-	#   Licensed under the Apache License, Version 2.0 (the "License");
-	#   you may not use this file except in compliance with the License.
-	#   You may obtain a copy of the License at
-	#
-	#       http://www.apache.org/licenses/LICENSE-2.0
-	#
-	#   Unless required by applicable law or agreed to in writing, software
-	#   distributed under the License is distributed on an "AS IS" BASIS,
-	#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	#   See the License for the specific language governing permissions and
-	#   limitations under the License.
-	#
-	###
+    ###
+    #   Copyright 2015
+    #
+    #   Licensed under the Apache License, Version 2.0 (the "License");
+    #   you may not use this file except in compliance with the License.
+    #   You may obtain a copy of the License at
+    #
+    #       http://www.apache.org/licenses/LICENSE-2.0
+    #
+    #   Unless required by applicable law or agreed to in writing, software
+    #   distributed under the License is distributed on an "AS IS" BASIS,
+    #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    #   See the License for the specific language governing permissions and
+    #   limitations under the License.
+    #
+    ###
 
 - Required: Oracle JDK or OpenJDK v. 1.8
 
@@ -29,35 +28,35 @@
 
    - https://github.com/de-tudarmstadt-lt/core/tree/master/lt.ltbot
    
-	wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
-	tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
+    wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
+    tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
       
 - Start Language Model Server:
 
    - have a corpus ready in a directory which contains .txt files. Ideally txt files are in the format one sentence per line with space separated tokens. Otherwise a naive approach for sentence splitting and tokenization will be used (Standard Java BreakIterators).
    - start LM Server:
    
-	bin/lm de.tudarmstadt.lt.lm.app.StartLM -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
+    bin/lm de.tudarmstadt.lt.lm.app.StartLM -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
    
    - for an explanation of options run 
    
-	bin/lm de.tudarmstadt.lt.lm.app.StartLM -? 
+    bin/lm de.tudarmstadt.lt.lm.app.StartLM -? 
    
    - the first time the language model is started a file named <dirname>.arpa.gz will be created in the specified corpus directory. This file is used for faster loading of the language model. It can be created using the BerkeleyLM- or SRILM framework too. If this file exists the .txt files are disregarded.
    - If you encounter OutOfMemory Exceptions or want to set different Java Options you have to specify the JAVA_OPTS environment variable, e.g.:
    
-	export JAVA_OPTS='-Xmx20g'
+    export JAVA_OPTS='-Xmx20g'
          
 - Start Heritrix v.3.2
    
    - Consider to increase the number of open file handles before the first start of Heritrix (see Heritrix Documentation and http://crawler.archive.org/faq.html#toomanyopenfiles)
    - Consider to increase the heap space memory used by Heritrix, e.g. 10 GB or more:
    
-	export JAVA_OPTS='-Xmx10g'
+    export JAVA_OPTS='-Xmx10g'
    
    - run Heritrix start command:
    
-	bin/heritrix -a <user>:<password> -b / 
+    bin/heritrix -a <user>:<password> -b / 
       
    - open a web browser and go to 'https://server:8443'. Login with the provided user and password (if you run heritrix for the first time with that browser you also have to accept the certificate). 
    - find and click the link 'ltbot-profile'
