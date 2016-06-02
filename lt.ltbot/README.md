@@ -23,39 +23,41 @@
 
 <!-- -->
 
-      wget http://builds.archive.org/maven2/org/archive/heritrix/heritrix/3.2.0/heritrix-3.2.0-dist.tar.gz
-      tar -xvzf heritrix-*.tar.gz
+		wget http://builds.archive.org/maven2/org/archive/heritrix/heritrix/3.2.0/heritrix-3.2.0-dist.tar.gz
+      
+		tar -xvzf heritrix-*.tar.gz
    
-- Download and unpack LtBot binaries into the heritrix directory:
+- Download and unpack topicrawler-plugin binaries into the heritrix directory:
 
    - https://github.com/de-tudarmstadt-lt/core/tree/master/lt.ltbot
 
 <!-- -->
 
-    wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
-    tar -xvzf lt.ltbot-*.tar.gz -C heritrix-3.2.0
+		wget https://github.com/de-tudarmstadt-lt/core/releases/download/LtBot-v0.1.0-beta/lt.ltbot-0.0.10-dist.tar.gz
+    
+		tar -xvzf lt.ltbot-*.tar.gz --strip-components 1 -C heritrix-3.2.0
       
 - Start Language Model Server:
 
-   - have a corpus ready in a directory which contains .txt files. Ideally txt files are in the format one sentence per line with space separated tokens. Otherwise a naive approach for sentence splitting and tokenization will be used (Standard Java BreakIterators).
+   - have a corpus ready in a directory which contains .txt files. Ideally txt files are in the format one sentence per line with space separated tokens.
    - start LM Server:
 
 <!-- -->
 
-    bin/lm de.tudarmstadt.lt.lm.app.StartLM -d <dir-to-txt-files> -i <service-name> -h 0.0.0.0 -pt BreakIteratorStringProvider
+		bin/lm -Xmx10g -Dlt.lm.knUnkLog10Prob=-10 de.tudarmstadt.lt.lm.app.StartLM -n 5 -d <dir-to-txt-files> -i <service-name>
    
    - for an explanation of options run 
 
 <!-- -->
 
-    bin/lm de.tudarmstadt.lt.lm.app.StartLM -? 
+		bin/lm de.tudarmstadt.lt.lm.app.StartLM -?
    
-   - the first time the language model is started a file named <dirname>.arpa.gz will be created in the specified corpus directory. This file is used for faster loading of the language model. It can be created using the BerkeleyLM- or SRILM framework too. If this file exists the .txt files are disregarded.
-   - If you encounter OutOfMemory Exceptions or want to set different Java Options you have to specify the JAVA_OPTS environment variable, e.g.:
+   - the first time the language model is started a file named <dirname>.arpa.gz will be created in the specified directory. This file is used for faster loading of the language model. It can be created using the BerkeleyLM or SRILM framework. The languagemodel is loaded from this file if it exists.
+   - If you encounter OutOfMemory Exceptions or want to set different Java Options you can specify a JAVA_OPTS environment variable, e.g.:
 
 <!-- -->
 
-    export JAVA_OPTS='-Xmx20g'
+		export JAVA_OPTS='-Xmx20g'
          
 - Start Heritrix v.3.2
    
@@ -64,13 +66,13 @@
    
 <!-- -->
 
-    export JAVA_OPTS='-Xmx10g'
+		export JAVA_OPTS='-Xmx10g'
    
    - run Heritrix start command:
 
 <!-- -->
    
-    bin/heritrix -a <user>:<password> -b / 
+		bin/heritrix -a <user>:<password> -b / 
       
    - open a web browser and go to 'https://server:8443'. Login with the provided user and password (if you run heritrix for the first time with that browser you also have to accept the certificate). 
    - find and click the link 'ltbot-profile'

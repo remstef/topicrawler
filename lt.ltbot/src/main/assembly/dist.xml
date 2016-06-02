@@ -25,6 +25,7 @@
 				<include>README*</include>
 				<include>LICENSE*</include>
 				<include>NOTICE*</include>
+				<include>adhoc.keystore</include>
 			</includes>
 		</fileSet>
 		
@@ -32,7 +33,7 @@
 			<directory>src/main/scripts</directory>
 			<outputDirectory>bin</outputDirectory>
 			<includes>
-				<include>*</include>
+				<include>lm</include>
 			</includes>
 		</fileSet>
 		

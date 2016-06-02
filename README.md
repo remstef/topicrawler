@@ -1,1 +1,1 @@
-lt.ltbot/README
+lt.ltbot/README.md
