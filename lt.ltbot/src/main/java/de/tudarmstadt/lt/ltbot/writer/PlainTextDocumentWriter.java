@@ -196,10 +196,11 @@ public class PlainTextDocumentWriter extends Processor{
 
 		String time = TimeUtils.get_ISO_8601_UTC();
 		synchronized (_lck) {
-			String s = String.format("%s\t%s\t%s\t%s%n", time, cleaned_plaintext.replaceAll("\t", "\\t").replaceAll("\n", "\\n"), curi, perplexity_value_as_string);
-			_current_stream.println(s);
+			String t = cleaned_plaintext.trim().replaceAll("\t", "\\t").replaceAll("\n", "\\n");
+			String s = String.format("%s\t%s\t%s\t%s%n", time, perplexity_value_as_string, t, curi);
+			_current_stream.print(s);
 			_num_bytes_written.getAndAdd(s.getBytes().length);
-			_num_bytes_docs_written.getAndAdd(cleaned_plaintext.replaceAll("\t", "\\t").replaceAll("\n", "\\n").getBytes().length);
+			_num_bytes_docs_written.getAndAdd(t.getBytes().length);
 			_current_stream.flush();
 		}
 		_num_uris_written.getAndIncrement();
