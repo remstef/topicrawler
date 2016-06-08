@@ -26,6 +26,7 @@
 				<include>LICENSE*</include>
 				<include>NOTICE*</include>
 				<include>adhoc.keystore</include>
+				<include>project.properties</include>
 			</includes>
 		</fileSet>
 		
