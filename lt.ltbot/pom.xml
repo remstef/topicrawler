@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tudarmstadt</groupId>
 	<artifactId>lt.ltbot</artifactId>
-	<version>0.4.0c</version>
+	<version>0.4.0d</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

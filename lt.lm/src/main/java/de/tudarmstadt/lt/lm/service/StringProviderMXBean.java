@@ -60,6 +60,10 @@ public interface StringProviderMXBean extends Remote, LMProvider<String> {
 	public int[] getNgramAsIds(List<String> ngram) throws Exception;
 
 	public List<String>[] getNgramSequenceFromSentence(List<String> sentence) throws Exception;
+	
+	public List<String>[] getNgramSequence(List<String> sequence) throws Exception;
+	
+	public List<String>[] getNgramSequence(List<String> sequence, int order) throws Exception;
 
 	public List<String> getNgramAsWords(int[] ngram_ids) throws Exception;
 

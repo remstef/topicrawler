@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true">
+
+	<jmxConfigurator />
+
+	<appender name="sysout" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.err</Target>
+		<encoder>
+			<pattern>%d{ISO8601} %-5p %c{1}: %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="error">
+		<appender-ref ref="sysout" />
+	</root>
+
+	<logger name="de.tudarmstadt.lt.lm" additivity="false" level="${verbosity:-info}">
+		<appender-ref ref="sysout" />
+	</logger>
+	
+	<logger name="de.tudarmstadt.lt.ltbot" additivity="false" level="${verbosity:-info}">
+		<appender-ref ref="sysout" />
+	</logger>
+
+	<if condition='isDefined("logfile")'><then>
+
+			<appender name="fileout" class="ch.qos.logback.core.FileAppender">
+				<file>${logfile}</file>
+				<append>true</append>
+				<encoder>
+					<pattern>%d{ISO8601} %-5p %c{1}: %m%n</pattern>
+				</encoder>
+			</appender>
+
+			<logger name="de.tudarmstadt.lt.lm" additivity="false" level="${verbosity:-info}">
+				<appender-ref ref="fileout" />
+			</logger>
+			
+			<logger name="de.tudarmstadt.lt.ltbot" additivity="false" level="${verbosity:-info}">
+				<appender-ref ref="fileout" />
+			</logger>
+
+	</then></if>
+
+
+</configuration> 
