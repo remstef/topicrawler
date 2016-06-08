@@ -33,7 +33,7 @@
 
 <!-- -->
 
-		wget https://github.com/tudarmstadt-lt/topicrawler/releases/download/v0.4.0c/lt.ltbot-0.4.0c-dist.tar.gz
+		wget https://github.com/tudarmstadt-lt/topicrawler/releases/download/v0.4.0d/lt.ltbot-0.4.0d-dist.tar.gz
     
 		tar -xvzf lt.ltbot-*.tar.gz --strip-components 1 -C heritrix-3.2.0
       
