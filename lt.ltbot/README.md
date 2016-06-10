@@ -20,7 +20,7 @@
 
 ### Quick Install  
 ```
-curl -fsSL https://raw.githubusercontent.com/tudarmstadt-lt/topicrawler/master/install.sh | sudo bash -e
+curl -fsSL https://raw.githubusercontent.com/tudarmstadt-lt/topicrawler/master/install.sh | bash -e
 ```
 
 ### Manual install 
