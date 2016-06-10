@@ -104,6 +104,12 @@ public class DecesiveValuePrioritizer extends Processor {
 	@Override
 	protected ProcessResult innerProcessResult(CrawlURI uri) throws InterruptedException {
 
+		uri.setSchedulingDirective(SchedulingConstants.NORMAL);
+		uri.setHolderCost(_maxPrecedence);
+		uri.setPrecedence(_maxPrecedence);
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE, SchedulingConstants.NORMAL);
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, _maxPrecedence);
+		
 		if(uri.isSeed())
 			return privilege(uri);
 
