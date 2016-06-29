@@ -155,7 +155,8 @@ public class DecesiveValueProducerPerplexity extends Processor {
 		ModelPerplexity<String> perp = new ModelPerplexity<String>(_lmprvdr.get());
 		for(String sentence : _sentenceMakerInstance.getSentences(text)){
 			List<String>[] ngrams = _lmprvdr.get().getNgrams(sentence);
-			if(ngrams.length <= 1) // at least 2 ngrams
+//			LOG.finest(String.format("ngrams: %s", ngrams));
+			if(ngrams.length < 1) // at least 1 ngrams
 				continue;
 			if(ngrams[ngrams.length-1].size() < _lmprvdr.get().getLmOrder()) // at least one ngram with cardinality of lm
 				continue;
@@ -264,7 +265,7 @@ public class DecesiveValueProducerPerplexity extends Processor {
 
 
 		synchronized (_lck) {
-			if(Double.isInfinite(perplexity)){
+			if(!Double.isFinite(perplexity) || perplexity <= 1){
 				_num_inf_values.incrementAndGet();
 			}else{
 				double temp = (_perplexity_avg * _num_values) + perplexity;
@@ -306,14 +307,14 @@ public class DecesiveValueProducerPerplexity extends Processor {
 		double perplexity = Double.POSITIVE_INFINITY;
 		try {
 			String docid = "#" + Integer.toHexString(cleaned_plaintext.hashCode());
-			LOG.fine(String.format("Sending text with id '%s' to StringProvider: '%s' (length %d).", docid, cleaned_plaintext_abbr, cleaned_plaintext.length()));
+			LOG.finest(String.format("Sending text with id '%s' to StringProvider: '%s' (length %d).", docid, cleaned_plaintext_abbr, cleaned_plaintext.length()));
 			perplexity = computePerplexity(cleaned_plaintext);
 			//			if (Double.isNaN(perplexity)) {
 			//				double perplexity_new = -1d;
 			//				LOG.log(Level.WARNING, String.format("[%s '%s'] failed to get meaningful perplexity: %g. Setting perplexity to %g.", uri.toString(), cleaned_plaintext_abbr, perplexity, perplexity_new));
 			//				perplexity = perplexity_new;
 			//			}
-			LOG.fine(String.format("[%s, '%s'] perplexity: %g.", uri.toString(), cleaned_plaintext_abbr, perplexity));
+			LOG.finest(String.format("[%s, '%s'] perplexity: %g.", uri.toString(), cleaned_plaintext_abbr, perplexity));
 		} catch (Throwable t) {
 			for (int i = 1; t != null && i < 10; i++) {
 				LOG.log(Level.SEVERE,
@@ -330,7 +331,7 @@ public class DecesiveValueProducerPerplexity extends Processor {
 				_paused_due_to_error = true;
 			}
 		}
-		if(Double.isInfinite(perplexity)){
+		if(!Double.isFinite(perplexity) || perplexity <= 1){
 			LOG.log(Level.FINE, String.format("[%s '%s'] resetting infinite perplexity to predefined maximum perplexity value (-1).", uri.toString(), cleaned_plaintext_abbr));
 			perplexity = -1;
 		}

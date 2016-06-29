@@ -108,7 +108,7 @@ seeds.textSource.path=seed.txt
 
  <bean id="metadata" class="org.archive.modules.CrawlMetadata" autowire="byName" />
 
- <bean id="seeds" class="org.archive.modules.seeds.TextSeedModule">
+ <bean id="seeds" class="de.tudarmstadt.lt.ltbot.seed.TextPrioSeedModule">
   <property name="textSource">
    <bean class="org.archive.spring.ConfigFile">
     <property name="path">
@@ -204,7 +204,7 @@ seeds.textSource.path=seed.txt
 
  <!-- PRIORITY -->
  <bean id="sentenceMaker" class="de.tudarmstadt.lt.ltbot.writer.SentenceMaker">
-  <property name="minLength" value="5" />
+  <property name="minLength" value="3" />
   <property name="targetLanguageCode" value="default" />
  </bean>
  <bean id="perplexityProducer" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValueProducerPerplexity" autowire="byName">
@@ -246,7 +246,7 @@ seeds.textSource.path=seed.txt
    </bean>
   </property>
  </bean>
- <bean id="perplexityPrioritizer" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValuePrioritizer" />
+ <bean id="perplexityPrioritizer" class="de.tudarmstadt.lt.ltbot.prefetch.DecesiveValuePrioritizer" />
  <bean id="perplexityLoggerDispositionChain" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValueLogger" />
   
  <!-- CANDIDATE CHAIN -->

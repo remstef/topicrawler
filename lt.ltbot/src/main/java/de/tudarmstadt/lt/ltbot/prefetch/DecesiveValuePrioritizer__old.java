@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package de.tudarmstadt.lt.ltbot.postprocessor;
+package de.tudarmstadt.lt.ltbot.prefetch;
 
 import static org.archive.modules.fetcher.FetchStatusCodes.S_OUT_OF_SCOPE;
 
@@ -25,21 +25,22 @@ import org.archive.modules.ProcessResult;
 import org.archive.modules.Processor;
 import org.archive.modules.SchedulingConstants;
 import org.archive.modules.extractor.Hop;
-import org.archive.modules.fetcher.FetchStatusCodes;
+
+import de.tudarmstadt.lt.ltbot.postprocessor.SharedConstants;
 
 /**
  *
  * @author Steffen Remus
  **/
-public class DecesiveValuePrioritizer extends Processor {
+public class DecesiveValuePrioritizer__old extends Processor {
 
-	private final static Logger LOG = Logger.getLogger(DecesiveValuePrioritizer.class.getName());
+	private final static Logger LOG = Logger.getLogger(DecesiveValuePrioritizer__old.class.getName());
 
 	private AtomicLong _count_reject;
 	private final AtomicLong[] _assignment_counts;
 	protected double[] _assignmentBoundaries;
 
-	public DecesiveValuePrioritizer() {
+	public DecesiveValuePrioritizer__old() {
 		setExtraInfoValueFieldName(SharedConstants.EXTRA_INFO_PERPLEXITY);
 		setAssignmentBoundaries("5e2,5e3,Infinity"); // one for each priority (HIGH,MEDIUM,NORMAL) HIGHER is reserved for prerequisites
 		setMaxValue(5e4);
@@ -96,6 +97,7 @@ public class DecesiveValuePrioritizer extends Processor {
 	@Override
 	protected void innerProcess(CrawlURI uri) throws InterruptedException {
 		assert false : "This method should never be called ";
+		innerProcessResult(uri);
 	}
 
 	/* (non-Javadoc)
@@ -111,30 +113,40 @@ public class DecesiveValuePrioritizer extends Processor {
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, _maxPrecedence);
 		
 		if(uri.isSeed())
-			return privilege(uri);
+			return assignSeedPriority(uri);
 
 		CrawlURI via_uri = uri.getFullVia();
+		
+		return innerProcessResult(uri, via_uri);
+
+		
+	}
+	
+	protected ProcessResult innerProcessResult(CrawlURI uri, CrawlURI via_uri) throws InterruptedException {
 		if (via_uri == null) // actually, that should never happen 
 			return forget(uri);
-
+		
+		if(via_uri.isPrerequisite() || via_uri.getLastHop().equals(Hop.REFER.getHopString()) || (via_uri.getFetchStatus() / 100) == 3 /* redirect status code */ || via_uri.getLastHop().equals(Hop.EMBED.getHopString()))
+			return innerProcessResult(uri, via_uri.getFullVia());
+			
 		if (via_uri.isSeed() && uri.getLastHop().equals(Hop.REFER.getHopString()))
-			return privilege(uri);
+			return assignSeedPriority(uri);
 		
 		if (via_uri.isSeed() && (uri.getFetchStatus() / 100) == 3 /* redirect status code */)
-			return privilege(uri);
+			return assignSeedPriority(uri);
 
 		if (via_uri.isSeed() && uri.isPrerequisite())
-			return privilege(uri);
+			return assignSeedPriority(uri);
 		
 		if (via_uri.isSeed() && uri.getLastHop().equals(Hop.EMBED.getHopString()))
-			return privilege(uri);
+			return assignSeedPriority(uri);
 
 		Object obj = getExtraInfo(via_uri, getExtraInfoValueFieldName());
 		if(obj == null)
 			// uri is probably a prerequisite or a redirect URL
-			if(uri.isPrerequisite() || uri.getLastHop().equals(Hop.REFER.getHopString()) || (via_uri.getFetchStatus() / 100) == 3 /* redirect status code */)
-				return handleRedirectsAndPrerequisites(uri, via_uri);
-			else // that should never ever happen
+//			if(uri.isPrerequisite() || uri.getLastHop().equals(Hop.REFER.getHopString()) || (via_uri.getFetchStatus() / 100) == 3 /* redirect status code */)
+//				return handleRedirectsAndPrerequisites(uri, via_uri);
+//			else // that should never ever happen
 				return forget(uri);
 			
 		double value = Double.valueOf((String)obj);
@@ -142,19 +154,24 @@ public class DecesiveValuePrioritizer extends Processor {
 		int schedulingConstants_priority = getPriorityAsSchedulingDirective(value);
 		if (schedulingConstants_priority < 0)
 			return forget(uri);
-
+		// lower values have higher precedence, i.e. higher priority
+		int cost = getPrecedenceCost(value, schedulingConstants_priority);
+		if(uri.isPrerequisite() || uri.getLastHop().equals(Hop.REFER.getHopString()) || (via_uri.getFetchStatus() / 100) == 3 /* redirect status code */ || uri.getLastHop().equals(Hop.EMBED.getHopString())){
+			cost = Math.max(2, (int)(cost / 2));
+//			schedulingConstants_priority = Math.max(SchedulingConstants.HIGHEST, schedulingConstants_priority-1);
+		}
+		
 		uri.setSchedulingDirective(schedulingConstants_priority);
 		_assignment_counts[schedulingConstants_priority].incrementAndGet();
 		LOG.finest(String.format("Assigned scheduling directive %d to %s.", schedulingConstants_priority, uri.toString()));
-		// lower values have higher precedence, i.e. higher priority
-		int cost = getPrecedenceCost(value, schedulingConstants_priority);
+		
 		uri.setHolderCost(cost);
 		uri.setPrecedence(cost);
 		LOG.finest(String.format("Assigned precedence cost %d to %s.", cost, uri.toString()));
 
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE, schedulingConstants_priority);
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, cost);
-		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY_VIA, String.format("%012g", value));
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY + "_via", String.format("%012g", value));
 
 		return ProcessResult.PROCEED;
 	}
@@ -162,7 +179,7 @@ public class DecesiveValuePrioritizer extends Processor {
 	private ProcessResult handleRedirectsAndPrerequisites(CrawlURI uri, CrawlURI via_uri) {		
 		if(via_uri.getFetchStatus() == S_OUT_OF_SCOPE)
 			return forget(uri);
-		Object obj = getExtraInfo(via_uri, SharedConstants.EXTRA_INFO_PERPLEXITY_VIA);
+		Object obj = getExtraInfo(via_uri, SharedConstants.EXTRA_INFO_PERPLEXITY + "_via");
 		if(obj == null)
 			return ProcessResult.PROCEED;  // -> status -50 (i guess via urls don't have perplexity value because they are not captured by html rule?? -> investigate)
 //			// no perplexity value and no perplexity via, that should never ever happen
@@ -176,7 +193,7 @@ public class DecesiveValuePrioritizer extends Processor {
 		int cost = (Integer)getExtraInfo(via_uri,SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE);
 		
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY, obj);
-		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY_VIA, obj);
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY + "_via", obj);
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE, schedulingConstants_priority);
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, cost);
 		
@@ -243,6 +260,18 @@ public class DecesiveValuePrioritizer extends Processor {
 		// else best remove from frontier
 		return -1;
 	}
+	
+	private ProcessResult assignSeedPriority(CrawlURI uri){
+		// for seed urls or urls that are a prerequisite for seed urls
+		_assignment_counts[SchedulingConstants.HIGH].incrementAndGet();
+		uri.setSchedulingDirective(SchedulingConstants.HIGH);
+		uri.setHolderCost(2);
+		uri.setPrecedence(2);
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY + "_via", "2");
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE, SchedulingConstants.HIGH);
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, 2);
+		return ProcessResult.PROCEED;
+	}
 
 	private ProcessResult privilege(CrawlURI uri){
 		// for seed urls or urls that are a prerequisite for seed urls
@@ -250,7 +279,7 @@ public class DecesiveValuePrioritizer extends Processor {
 		uri.setSchedulingDirective(SchedulingConstants.HIGH);
 		uri.setHolderCost(2);
 		uri.setPrecedence(2);
-		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY_VIA, "2");
+		addExtraInfo(uri, SharedConstants.EXTRA_INFO_PERPLEXITY + "_via", "2");
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE, SchedulingConstants.HIGH);
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, 2);
 		return ProcessResult.PROCEED;

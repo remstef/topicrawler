@@ -24,7 +24,6 @@ public class SharedConstants {
 	private SharedConstants(){ /* DO NOT INSTANTIATE */ }
 
 	public final static String EXTRA_INFO_PERPLEXITY = "perp";
-	public final static String EXTRA_INFO_PERPLEXITY_VIA = "perp-via";
 	public final static String EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE = "asgnd-sched-drctve";
 	public final static String EXTRA_INFO_ASSIGNED_COST_PRECEDENCE = "asgnd-cost-precedence";
 	public final static String EXTRA_INFO_PLAINTEXT_ABBREVIATED = "plain-abbrv";

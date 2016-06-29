@@ -107,7 +107,7 @@ public class DecesiveValueLogger extends Processor {
 	
 	private String getLogString(CrawlURI curi){
 		String timestamp = TimeUtils.get_ISO_8601_UTC();
-		String value_as_str = curi.getData().containsKey(getExtraInfoValueFieldName()) ? curi.getData().get(getExtraInfoValueFieldName()).toString() : "null";
+		String value_as_str = curi.getData().get(getExtraInfoValueFieldName()) != null ? curi.getData().get(getExtraInfoValueFieldName()).toString() : "null";
 		String current_scheduling_directive = String.valueOf(curi.getSchedulingDirective());
 		String current_precedence = String.valueOf(curi.getPrecedence());
 		String assigned_scheduling_directive = "_";
