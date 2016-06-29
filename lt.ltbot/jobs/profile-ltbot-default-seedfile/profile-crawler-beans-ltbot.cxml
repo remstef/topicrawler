@@ -204,7 +204,7 @@ seeds.textSource.path=seed.txt
 
  <!-- PRIORITY -->
  <bean id="sentenceMaker" class="de.tudarmstadt.lt.ltbot.writer.SentenceMaker">
-  <property name="minLength" value="3" />
+  <property name="minLength" value="2" />
   <property name="targetLanguageCode" value="default" />
  </bean>
  <bean id="perplexityProducer" class="de.tudarmstadt.lt.ltbot.postprocessor.DecesiveValueProducerPerplexity" autowire="byName">
