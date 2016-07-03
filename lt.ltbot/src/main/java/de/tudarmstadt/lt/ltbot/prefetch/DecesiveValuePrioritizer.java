@@ -21,12 +21,13 @@ import static org.archive.modules.fetcher.FetchStatusCodes.S_OUT_OF_SCOPE;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.httpclient.URIException;
 import org.archive.crawler.framework.Scoper;
 import org.archive.modules.CrawlURI;
 import org.archive.modules.ProcessResult;
 import org.archive.modules.SchedulingConstants;
 import org.archive.modules.extractor.Hop;
+import org.archive.net.UURI;
 
 import de.tudarmstadt.lt.ltbot.postprocessor.SharedConstants;
 
@@ -98,57 +99,82 @@ public class DecesiveValuePrioritizer extends Scoper {
 
 	@Override
 	protected void innerProcess(CrawlURI uri) throws InterruptedException {
-		__innerProcessResult(uri);
+		super.innerProcessResult(uri);
+
 	}
 
-	/* (non-Javadoc)
-	 * @see org.archive.modules.Processor#innerProcessResult(org.archive.modules.CrawlURI)
-	 */
-//	@Override
-	protected ProcessResult __innerProcessResult(CrawlURI uri) throws InterruptedException {
-
+	@Override
+	protected ProcessResult innerProcessResult(CrawlURI uri) throws InterruptedException {
 		CrawlURI via_uri = uri.getFullVia();
+		return innerProcessResult(uri, via_uri, 0);
+	}
+
+	protected ProcessResult innerProcessResult(CrawlURI uri, CrawlURI via_uri, int recursion_count) throws InterruptedException {
 
 		// uri is seed
-		if(via_uri == null || uri.isSeed()){
-			if(uri.isSeed()){
-				return schedule(uri, via_uri, 2d, "");
-			}else{
-				if(StringUtils.isNotEmpty(uri.getPathFromSeed())) {
-					char lastHop = uri.getPathFromSeed().charAt(uri.getPathFromSeed().length()-1);
-					if(lastHop == 'R') {
-						// refer
-						return schedule(uri, via_uri, 2d, "");
-					}
-				}
-				LOG.warning(String.format("'%s' has no via URL %s / %s.", uri, uri.flattenVia(), via_uri));
-				//				assert false : "Why is your via null, that should not happen!";
-				return ProcessResult.FINISH;
-			}
+		if(uri.isSeed()){
+			LOG.info(uri +  " isSeed");
+			return schedule(uri, via_uri, 2d, 0, false, "");
 		}
-		
+
 		boolean uri_is_redirect = uri.getLastHop().equals(Hop.REFER.getHopString());//s || uri.getLastHop().equals(Hop.EMBED.getHopString());
+		boolean uri_is_robotstxt = isRobotstxt(uri);
+
+		if(via_uri == null){
+			String debug_uri = String.format("%s:%n%s\ndirective / cost %s/%s%n %s --> via %s (%s)%n --> fullvia %s%n --> recursive via %d %s%n", 
+					uri.toString() + (uri.isPrerequisite() ? " is preq" : "") +  (uri_is_redirect ? " is redirect" : "") + (uri.isSeed() ? " is seed" : "") + (uri_is_robotstxt ? " is robots.txt" : ""), 
+					uri.getData(), 
+					uri.getSchedulingDirective(),
+					uri.getPrecedence(),
+					uri.getPathFromSeed(),
+					uri.getVia(),
+					uri.flattenVia(),
+					uri.getFullVia(),
+					recursion_count,
+					via_uri);
+			LOG.warning(String.format("'%s' has no via URL %s / %s.%n+++START+++%n%s%n+++END+++%n", uri, uri.flattenVia(), via_uri, debug_uri));
+			return ProcessResult.FINISH;
+		}
+
 		boolean via_is_redirect = via_uri.getLastHop().equals(Hop.REFER.getHopString()) || via_uri.getLastHop().equals(Hop.EMBED.getHopString()); //|| (via_uri.getFetchStatus() / 100) == 3 /* redirect status code */
-		
-		String debug_uri = String.format("%s:%n%s\ndirective / cost %s/%s %n---> via %s%n%s\ndirective / cost %s/%s", 
-				uri.toString() + (uri.isPrerequisite() ? " is preq" : "") +  (uri_is_redirect ? " is redirect" : "") + (uri.isSeed() ? " is seed" : ""), 
+		boolean via_uri_is_robotstxt = isRobotstxt(via_uri);
+
+		String debug_uri = String.format("%s:%n%s\ndirective / cost %s/%s %n%s %d ---> via %s%n%s\ndirective / cost %s/%s", 
+				uri.toString() + (uri.isPrerequisite() ? " is preq" : "") +  (uri_is_redirect ? " is redirect" : "") + (uri.isSeed() ? " is seed" : "") + (uri_is_robotstxt ? " is robots.txt" : ""), 
 				uri.getData(), 
 				uri.getSchedulingDirective(),
 				uri.getPrecedence(),
-				via_uri.toString() + (via_uri.isPrerequisite() ? " is preq" : "") + (via_is_redirect ? " is redirect" : "") + (via_uri.isSeed() ? " is seed" : ""), 
+				uri.getPathFromSeed(),
+				recursion_count,
+				via_uri.toString() + (via_uri.isPrerequisite() ? " is preq" : "") + (via_is_redirect ? " is redirect" : "") + (via_uri.isSeed() ? " is seed" : "") + (via_uri_is_robotstxt ? " is robots.txt" : ""), 
 				via_uri.getData(),
 				via_uri.getSchedulingDirective(),
 				via_uri.getPrecedence());
 		LOG.finest(debug_uri);
 
-		double perplexity = _maxvalue;
-		
-		if(uri_is_redirect || uri.isPrerequisite() || via_uri.isPrerequisite()) // uri is embed/refer/prereq/...
-			return scheduleSame(uri, via_uri);
-		else
-			perplexity = getPerplexity(uri, via_uri, debug_uri);
+		//		double perplexity = _maxvalue;
+		Object perpobj = getExtraInfo(via_uri, getExtraInfoValueFieldName());
+		if(perpobj == null){
+			if(via_uri.isSeed())
+				return schedule(uri, via_uri, 2d + recursion_count + 1, recursion_count+1, false, debug_uri);
+			if(via_uri_is_robotstxt)
+				return schedule(
+						uri, 
+						via_uri, 
+						Math.min(_maxvalue, _assignmentBoundaries[SchedulingConstants.NORMAL])-1d,
+						recursion_count+1, 
+						true,
+						debug_uri);
+			return innerProcessResult(uri, via_uri.getFullVia(), recursion_count+1);
+		}
 
-		return schedule(uri, via_uri, perplexity, debug_uri);
+		//		if(uri_is_redirect || uri.isPrerequisite() || via_uri.isPrerequisite()) // uri is embed/refer/prereq/...
+		//			return scheduleSame(uri, via_uri);
+		//		else
+
+		double perplexity = Double.valueOf((String)perpobj);//getPerplexity(uri, via_uri, debug_uri);
+
+		return schedule(uri, via_uri, perplexity, recursion_count, false, debug_uri);
 	}
 
 	double getPerplexity(CrawlURI uri, CrawlURI via_uri, String debug_uri){
@@ -156,18 +182,18 @@ public class DecesiveValuePrioritizer extends Scoper {
 		if(obj == null){
 			LOG.info(String.format("%s - (%s)\tno priority value found at field %s.%n+++BEGIN+++%n%s%n+++END+++%n", via_uri, uri.flattenVia(), getExtraInfoValueFieldName(), debug_uri));
 			// FIXME: schedule same in such a case? 			//			perplexity = getPerplexity(uri, via_uri, getExtraInfoValueFieldName() + "_via");
-//			LOG.warning(String.format("unable to schedule %s.", uri));
-//			obj = getExtraInfo(via_uri, getExtraInfoValueFieldName() + "_via");
-//			if(obj == null){
-//				LOG.warning(String.format("%s - (%s)\tno priority value found at field %s.", via_uri, uri.flattenVia(), getExtraInfoValueFieldName()+"_via"));
-				return _maxvalue;
-//			}
+			//			LOG.warning(String.format("unable to schedule %s.", uri));
+			//			obj = getExtraInfo(via_uri, getExtraInfoValueFieldName() + "_via");
+			//			if(obj == null){
+			//				LOG.warning(String.format("%s - (%s)\tno priority value found at field %s.", via_uri, uri.flattenVia(), getExtraInfoValueFieldName()+"_via"));
+			return _maxvalue;
+			//			}
 		}
 		double value = Double.valueOf((String)obj);
 		return value;
 	}
 
-	ProcessResult schedule(CrawlURI uri, CrawlURI via_uri, double perplexity, String debug_uri){
+	ProcessResult schedule(CrawlURI uri, CrawlURI via_uri, double perplexity, int recursion_count, boolean copy_perp, String debug_uri){
 		LOG.fine(String.format("Perplexity %s = %f", uri.toString(), perplexity));
 		int schedulingdirective = getPriorityAsSchedulingDirective(perplexity);
 		if (schedulingdirective < 0){ // "forget" url 
@@ -184,12 +210,13 @@ public class DecesiveValuePrioritizer extends Scoper {
 		}
 
 		int cost = getPrecedenceCost(perplexity, schedulingdirective);
-		
+		cost = Math.max(cost - recursion_count, 0);
+
 		if(uri.isPrerequisite())
 			uri.setSchedulingDirective(Math.max(SchedulingConstants.HIGHEST, schedulingdirective-1));
 		else
 			uri.setSchedulingDirective(schedulingdirective);
-		
+
 		uri.setHolderCost(cost);
 		uri.setPrecedence(cost);
 
@@ -201,6 +228,8 @@ public class DecesiveValuePrioritizer extends Scoper {
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_SCHEDULING_DIRECTIVE, schedulingdirective);
 		addExtraInfo(uri, SharedConstants.EXTRA_INFO_ASSIGNED_COST_PRECEDENCE, cost);
 		addExtraInfo(uri, getExtraInfoValueFieldName() + "_via", String.format("%012g", perplexity));
+		if(copy_perp)
+			addExtraInfo(uri, getExtraInfoValueFieldName(), String.format("%012g", perplexity));
 
 		return ProcessResult.PROCEED;
 	}
@@ -216,7 +245,7 @@ public class DecesiveValuePrioritizer extends Scoper {
 		}
 		else
 			uri.setSchedulingDirective(via_uri.getSchedulingDirective());
-		
+
 		int cost = Math.max(0, via_uri.getHolderCost()-1);
 		uri.setHolderCost(cost);
 		uri.setPrecedence(cost);
@@ -280,7 +309,7 @@ public class DecesiveValuePrioritizer extends Scoper {
 		B = Math.log1p(B);
 		double A = Math.log1p(_assignmentBoundaries[SchedulingConstants.MEDIUM]);
 		val = Math.log1p(val);
-//		assert val >= A : "Value is smaller than lower boundary. That should not happen.";
+		//		assert val >= A : "Value is smaller than lower boundary. That should not happen.";
 		double a = cost;
 		double b = _maxPrecedence;
 		cost = (int)Math.ceil((val-A)*(b-a)/(B-A) + a);
@@ -302,7 +331,7 @@ public class DecesiveValuePrioritizer extends Scoper {
 		if (perplexity <= _assignmentBoundaries[SchedulingConstants.NORMAL]) return SchedulingConstants.NORMAL; // default
 
 		// else best remove from frontier // should not happen
-//		assert false : "You should not be here";
+		//		assert false : "You should not be here";
 		return -1;
 	}
 
@@ -328,6 +357,16 @@ public class DecesiveValuePrioritizer extends Scoper {
 		sb.append(String.format("    %d '%s'%n", _count_reject.get(), "REJECTED"));
 		sb.append(String.format("  ]%n"));
 		return sb.toString();
+	}
+
+	private static boolean isRobotstxt(CrawlURI curi){
+		UURI uuri = curi.getUURI();
+		try {
+			return uuri != null && uuri.getPath() != null && curi.getUURI().getPath().equals("/robots.txt");
+		}catch (URIException e) {
+			LOG.severe("Failed get of path for " + curi);
+			return false;
+		}
 	}
 
 }
