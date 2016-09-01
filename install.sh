@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.4.1a
+VERSION=0.7.0
 DIR="topicrawler-${VERSION}"
 
 mkdir -p ${DIR}
