@@ -69,5 +69,14 @@
 			</includes>
 		</fileSet>
 		
+		<!-- handle logging configuration files -->
+		<fileSet>
+			<directory>src/main/log</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>logback.*</include>
+			</includes>
+		</fileSet>
+		
 	</fileSets>
 </assembly>

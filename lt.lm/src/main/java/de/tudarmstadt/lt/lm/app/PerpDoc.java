@@ -198,6 +198,8 @@ public class PerpDoc implements Runnable {
 		_oov_terms = 0;
 		_num_ngrams = 0;
 		long l = 0;
+		String ts = null;
+		String s = null;
 		for(LineIterator liter = new LineIterator(r); liter.hasNext(); ){
 			if(++l % 5000 == 0)
 				LOG.info("{}: processing line {}.", _rmi_string, l);
@@ -210,8 +212,10 @@ public class PerpDoc implements Runnable {
 			String[] splits = line.split("\t");
 			if(splits.length < 3)
 				continue;
-			if(docid == null)
+			if(docid == null){
 				docid = splits[2];
+				ts = splits[0];
+			}
 			
 			if(!splits[2].equals(docid)){
 				double perplexity = _perplexity_doc.get();
@@ -219,21 +223,23 @@ public class PerpDoc implements Runnable {
 					_max_perp = perplexity;
 				if(perplexity < _min_perp)
 					_min_perp = perplexity;
-				String o = String.format("%s\t%s\tPerplexity: %6.3e \tMax: %6.3e \tMin: %6.3e \tngrams: %d \tOov-terms: %d \tOov-ngrams: %d", 
-						_rmi_string, docid, perplexity, _max_perp, _min_perp, 
+				String o = String.format("%s\t%s\t%s\tPerplexity: %6.3e \tMax: %6.3e \tMin: %6.3e \tngrams: %d \tOov-terms: %d \tOov-ngrams: %d", 
+						_rmi_string, ts, docid, perplexity, _max_perp, _min_perp, 
 						_num_ngrams, _oov_terms, _oov_ngrams);
 				LOG.info(o);
 				if(!_quiet)
 					write(String.format("%s%n", o));
 				else
-					write(String.format("%s\t%s\t%6.3e%n", _rmi_string, docid, perplexity));
+					write(String.format("%s\t%s\t%s\t%6.3e%n", _rmi_string, ts, docid, perplexity));
 				_perplexity_doc.reset();
 				docid = splits[2];
+				ts = splits[0];
 			}
 			
+			s = splits[1];
 			List<String>[] ngrams;
 			try {
-				ngrams = _lm_prvdr.getNgrams(line);
+				ngrams = _lm_prvdr.getNgrams(s);
 				if(ngrams == null || ngrams.length == 0)
 					continue;
 			} catch (Exception e) {
@@ -268,14 +274,14 @@ public class PerpDoc implements Runnable {
 				_max_perp = perplexity;
 			if(perplexity < _min_perp)
 				_min_perp = perplexity;
-			String o = String.format("%s\t%s\tPerplexity: %6.3e \tMax: %6.3e \tMin: %6.3e \tngrams: %d \tOov-terms: %d \tOov-ngrams: %d", 
-					_rmi_string, docid, perplexity, _max_perp, _min_perp, 
+			String o = String.format("%s\t%s\t%s\tPerplexity: %6.3e \tMax: %6.3e \tMin: %6.3e \tngrams: %d \tOov-terms: %d \tOov-ngrams: %d", 
+					_rmi_string, ts, docid, perplexity, _max_perp, _min_perp, 
 					_num_ngrams, _oov_terms, _oov_ngrams);
 			LOG.info(o);
 			if(!_quiet)
 				write(String.format("%s%n", o));
 			else
-				write(String.format("%s\t%s\t%6.3e%n", _rmi_string, docid, _perplexity_doc.get()));
+				write(String.format("%s\t%s\t%s\t%6.3e%n", _rmi_string, ts, docid, _perplexity_doc.get()));
 		}
 		
 	}

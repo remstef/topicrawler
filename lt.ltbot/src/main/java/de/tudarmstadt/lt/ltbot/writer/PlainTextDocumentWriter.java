@@ -188,11 +188,14 @@ public class PlainTextDocumentWriter extends Processor{
 	 */
 	protected void writeplaintext(CrawlURI curi, String cleaned_plaintext) {
 		String perplexity_value_as_string = "null";
-		if(curi != null && curi.getData() != null){
-			Object obj = curi.getData().get(SharedConstants.EXTRA_INFO_PERPLEXITY);
-			if(obj != null)
-				perplexity_value_as_string = (String)obj;
-		}
+		if(curi == null || curi.getData() == null)
+			return;
+		if(StringUtils.isEmpty(cleaned_plaintext))
+			return;
+		
+		Object obj = curi.getData().get(SharedConstants.EXTRA_INFO_PERPLEXITY);
+		if(obj != null)
+			perplexity_value_as_string = (String)obj;
 
 		String time = TimeUtils.get_ISO_8601_UTC();
 		synchronized (_lck) {

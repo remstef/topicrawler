@@ -1,0 +1,14 @@
+#!/bin/bash
+##
+#
+# Copy this file into your PATH
+#
+##
+
+[ -z ${KD_SUITE_HOME} ] && kdhome="${HOME}/git/lt.kd" || kdhome=${KD_SUITE_HOME}
+
+lmsrc="${kdhome}/lt.lm"
+
+tgt=$(find "${lmsrc}/target" -type f -name "lm" | grep "dist/" | head -n1)
+
+eval "${tgt} $@"

@@ -1,3 +1,20 @@
+    ###
+    #   Copyright 2015
+    #
+    #   Licensed under the Apache License, Version 2.0 (the "License");
+    #   you may not use this file except in compliance with the License.
+    #   You may obtain a copy of the License at
+    #
+    #       http://www.apache.org/licenses/LICENSE-2.0
+    #
+    #   Unless required by applicable law or agreed to in writing, software
+    #   distributed under the License is distributed on an "AS IS" BASIS,
+    #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    #   See the License for the specific language governing permissions and
+    #   limitations under the License.
+    #
+    ###
+
 ### Prerequisities
 
 * Java v.8
@@ -5,11 +22,11 @@
 
 ### How to install
 
-* Download latest version from the releases site [https://github.com/de-tudarmstadt-lt/lt.core/releases][]
+* Download latest version from the releases site https://github.com/tudarmstadt-lt/seg/releases
 * unpack into a directory of choice: `tar -xzvf lt.seg-version-dist.tar.gz -C <your-preferred-directory>`
-* (optional) to access `seg.sh` from anywhere you can add <your-preferred-directory>/bin to PATH: `PATH=<your-preferred-directory>:$PATH` or symlink `seg.sh` into a directory which is already in your PATH
+* executables can be found in the `bin` directory, e.g. `bin/seg`. You can execute it from any directory.
+* (optional) to access the `seg` binary from anywhere you can add <your-preferred-directory>/bin to PATH: `PATH=<your-preferred-directory>:$PATH` or symlink `seg` into a directory which is already in your PATH
 
-[https://github.com/de-tudarmstadt-lt/lt.core/releases]: https://github.com/de-tudarmstadt-lt/lt.core/releases "Releases"
 
 *Note: the following description is for unix based systems, you cannot run the startup shell scripts on MS Windows, consider using cygwin or run the java commands manually*
 
@@ -17,20 +34,20 @@
 
 basic usage is as simple as
 
-		cat text.txt | seg.sh > segmented_text.txt
+		cat text.txt | seg > segmented_text.txt
 
 or 
 
-		seg.sh < text.txt > segmented_text.txt
+		seg < text.txt > segmented_text.txt
 
 or 
 
-		seg.sh -f text.txt > segmented_text.txt
+		seg -f text.txt > segmented_text.txt
 
 
-lt.seg comes with a number of parameters, run `seg.sh -?` to get a list of options
+lt.seg comes with a number of parameters, run `seg -?` to get a list of options
 
-*Note: for MS Windows based systems replace* `seg.sh` *with the correct java command, e.g.* `java -cp lt.seg-<version>-with-dependencies.jar de.tudarmstadt.lt.seg.app.Segmenter <options>`
+*Note: for MS Windows based systems replace* `seg` *with the correct java command, e.g.* `java -cp lt.seg-<version>-with-dependencies.jar de.tudarmstadt.lt.seg.app.Segmenter <options>`
 
 ### Options:
 * `--sentencesplitter <class>` (`-s`):
@@ -41,7 +58,8 @@ lt.seg comes with a number of parameters, run `seg.sh -?` to get a list of optio
 	* `NullSplitter`: Convenience splitter, returns the complete input as one segment
 * `--tokenizer <class>` (`-t`)
 	Sepcify the tokenizer class. Supported values are:
-	* `DiffTokenizer` (default): Applies simple rules based on the change on Unicode category of consecutive characters
+	* `RuleTokenizer` (default): Applies tokenization according to a ruleset specified by the `--token-ruleset` option parameter
+	* `DiffTokenizer`: Applies simple rules based on the change on Unicode category of consecutive characters
 	* `BreakTokenizer`: Java word breakiterator instance
 	* `EmptySpaceTokenizer`: creates a new segment only when empty spaces are found (supported empty spaces include but are not limited to: `<blank>`, `<protected-blank>`, `\t`, `\n`, `\r`, `\f`, ...)
 	* `NullTokenizer`: Convenience tokenizer, returns the complete input as one segment

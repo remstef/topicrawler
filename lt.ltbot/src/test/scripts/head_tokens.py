@@ -36,7 +36,7 @@ def run_cli(sentences, numtokens):
     '''
       add the number of tokens for the current line and sum of tokens after the current line from the beginning
     '''
-    numtokens=int(numtokens.replace('G','MM').replace('M','KK').replace('K','000'))
+    numtokens=int(numtokens.replace('G','KM').replace('M','KK').replace('K','000'))
     head(sentences, numtokens)
 
 if __name__ == '__main__':

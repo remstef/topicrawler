@@ -68,7 +68,8 @@ public class PerplexityClient implements Runnable {
 		opts.addOption(OptionBuilder.withLongOpt("port").withArgName("port-number").hasArg().withDescription(String.format("Specifies the port on which the rmi registry listens (default: %d).", Registry.REGISTRY_PORT)).create("p"));
 		opts.addOption(OptionBuilder.withLongOpt("selftest").withDescription("Run a selftest, compute perplexity of ngrams in specified LM.").create("s"));
 		opts.addOption(OptionBuilder.withLongOpt("quiet").withDescription("Run with minimum outout on stdout.").create("q"));
-		opts.addOption(OptionBuilder.withLongOpt("noov").hasOptionalArg().withArgName("{true|false}").withDescription("Do not consider oov terms, i.e. ngrams that end in an oov term. (default: false)").create());
+		opts.addOption(OptionBuilder.withLongOpt("skipoov").hasOptionalArg().withArgName("{true|false}").withDescription("Do not consider oov terms, i.e. ngrams that end in an oov term. (default: false)").create());
+		opts.addOption(OptionBuilder.withLongOpt("skipoovreflm").hasOptionalArg().withArgName("{true|false}").withDescription("Do not consider oov terms regarding the oovreflm, i.e. ngrams that end in an oov term. (default: false)").create());
 		opts.addOption(OptionBuilder.withLongOpt("oovreflm").withArgName("identifier").hasArg().withDescription("Do not consider oov terms with respect to the provided lm, i.e. ngrams that end in an oov term in the referenced lm. (default use current lm)").create());
 		opts.addOption(OptionBuilder.withLongOpt("host").withArgName("hostname").hasArg().withDescription("Specifies the hostname on which the rmi registry listens (default: localhost).").create("h"));
 		opts.addOption(OptionBuilder.withLongOpt("file").withArgName("name").hasArg().withDescription("Specify the file or directory that contains '.txt' files that are used as source for testing perplexity with the specified language model. Specify '-' to pipe from stdin. (default: '-').").create("f"));
@@ -89,9 +90,13 @@ public class PerplexityClient implements Runnable {
 			_host = cmd.getOptionValue("host", "localhost");
 			_selftest = cmd.hasOption("selftest");
 			_quiet = cmd.hasOption("quiet");
-			_no_oov = cmd.hasOption("noov");
-			if(_no_oov && cmd.getOptionValue("noov") != null)
-				_no_oov = Boolean.parseBoolean(cmd.getOptionValue("noov"));
+			_no_oov = cmd.hasOption("skipoov");
+			if(_no_oov && cmd.getOptionValue("skipoov") != null)
+				_no_oov = Boolean.parseBoolean(cmd.getOptionValue("skipoov"));
+			_no_oov_reflm = cmd.hasOption("skipoovreflm");
+			if(_no_oov_reflm && cmd.getOptionValue("skipoovreflm") != null)
+				_no_oov_reflm = Boolean.parseBoolean(cmd.getOptionValue("skipoovreflm"));
+
 			_one_ngram_per_line = cmd.hasOption("one_ngram_per_line");
 			if(_one_ngram_per_line && cmd.getOptionValue("one_ngram_per_line") != null)
 				_one_ngram_per_line = Boolean.parseBoolean(cmd.getOptionValue("one_ngram_per_line"));
@@ -114,6 +119,7 @@ public class PerplexityClient implements Runnable {
 	boolean _selftest;
 	boolean _quiet;
 	boolean _no_oov;
+	boolean _no_oov_reflm;
 	boolean _one_ngram_per_line;
 	PrintStream _pout;
 
@@ -126,6 +132,8 @@ public class PerplexityClient implements Runnable {
 	ModelPerplexity<String> _perplexity_all = null;
 	ModelPerplexity<String> _perplexity_file = null;
 
+	long _oovreflm_oov_terms = 0;
+	long _oovreflm_oov_ngrams = 0;
 	long _oov_terms = 0;
 	long _oov_ngrams = 0;
 	long _num_ngrams = 0;
@@ -192,7 +200,7 @@ public class PerplexityClient implements Runnable {
 					try{ run(new InputStreamReader(new FileInputStream(f), "UTF-8")); }catch(Exception e){LOG.error("{}: Could not compute perplexity from file '{}'.", _rmi_string, f.getAbsolutePath(), e);}
 					String o = String.format("%s: (intermediate results) \t %s \tPerplexity (file): %6.3e \tPerplexity (cum): %6.3e \tMax: log_10(p(%s))=%6.3e \tMin: log_10(p(%s))=%6.3e \tngrams (cum): %d \tOov-terms (cum): %d \tOov-ngrams (cum): %d", 
 							_rmi_string, f.getAbsoluteFile(), _perplexity_file.get(), _perplexity_all.get(), _max_ngram, _max_prob, _min_ngram, _min_prob,
-							_num_ngrams, _oov_terms, _oov_ngrams);
+							_num_ngrams, _oovreflm_oov_terms, _oovreflm_oov_ngrams);
 					LOG.info(o);
 					if(!_quiet)
 						write(String.format("%s%n", o));
@@ -200,14 +208,22 @@ public class PerplexityClient implements Runnable {
 			}
 		}
 
-		String o = String.format("%s\t%s\tPerplexity: %6.3e \tMax: log_10(p(%s))=%6.3e \tMin: log_10(p(%s))=%6.3e \tngrams: %d \tOov-terms: %d \tOov-ngrams: %d", 
+		String o = String.format("%s\t%s\tPerplexity: %6.3e \tMax: log_10(p(%s))=%6.3e \tMin: log_10(p(%s))=%6.3e \tngrams: %d \toov-handling: %s \tOov-terms: %d \tOov-ngrams: %d \toov-reflm-handling: %s \tOov-reflm-terms: %d \tOov-reflm-ngrams: %d", 
 				_rmi_string, _file, _perplexity_all.get(), _max_ngram, _max_prob, _min_ngram, _min_prob, 
-				_num_ngrams, _oov_terms, _oov_ngrams);
+				_num_ngrams, 
+				_no_oov ? "oov excluded" : "oov included", _oov_terms, _oov_ngrams,
+				_no_oov_reflm ? "oov-reflm excluded" : "oov-reflm included", _oovreflm_oov_terms, _oovreflm_oov_ngrams);
 		LOG.info(o);
 		if(!_quiet)
 			write(String.format("%s%n", o));
 		else
-			write(String.format("%s\t%s\t%6.3e%n", _rmi_string, _file, _perplexity_all.get()));
+			write(String.format("%s\t%s\t%6.3e\t%d\t%s\t%d\t%d\t%s\t%d\t%d%n", _rmi_string, _file, _perplexity_all.get(), _num_ngrams, 
+					_no_oov ? "oov excluded" : "oov included",
+					_oov_ngrams, 
+					_oov_terms,
+					_no_oov_reflm ? "oov-reflm excluded" : "oov-reflm included",
+					_oovreflm_oov_ngrams, 
+					_oovreflm_oov_terms));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -239,12 +255,20 @@ public class PerplexityClient implements Runnable {
 					continue;
 				_num_ngrams++;
 				try{
+					boolean oov = false;
+					if(_lm_prvdr.ngramContainsOOV(ngram)){
+						_oov_ngrams++;
+						if(_lm_prvdr.ngramEndsWithOOV(ngram)){
+							_oov_terms++;
+							oov = true;
+						}
+					}
 
 					if(_lm_prvdr_oovref.ngramContainsOOV(ngram)){
-						_oov_ngrams++;
+						_oovreflm_oov_ngrams++;
 						if(_lm_prvdr_oovref.ngramEndsWithOOV(ngram)){
-							_oov_terms++;
-							if(_no_oov)
+							_oovreflm_oov_terms++;
+							if(_no_oov_reflm || (_no_oov && oov))
 								continue;
 						}
 					}

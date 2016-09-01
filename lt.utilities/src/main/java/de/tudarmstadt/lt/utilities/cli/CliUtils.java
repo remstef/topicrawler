@@ -2,9 +2,13 @@ package de.tudarmstadt.lt.utilities.cli;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.StringUtils;
 
 
 public class CliUtils {
@@ -29,6 +33,19 @@ public class CliUtils {
 	public static void print_usage_quit(PrintStream p, String cmd, Options opts, String header, String message, int exit_code){
 		print_usage(p, cmd, opts, header, message);
 		System.exit(exit_code);
+	}
+	
+	public static Map<String, String> getOptionsMap(Option[] options){
+		Map<String, String> map = new HashMap<>();
+		for (Option option : options) {
+			if(option.getValue().contains("=")){
+				String[] split = option.getValue().split("=");
+				map.put(split[0], split[1]);
+			}else{
+				map.put(option.getLongOpt(), StringUtils.join(option.getValuesList(), ","));
+			}
+		}
+		return map;
 	}
 	
 }

@@ -15,18 +15,15 @@
  */
 package de.tudarmstadt.lt.seg;
 
-import static org.junit.Assert.*;
-
-import java.util.Spliterator;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.junit.Test;
 
 import de.tudarmstadt.lt.seg.sentence.ISentenceSplitter;
 import de.tudarmstadt.lt.seg.sentence.RuleSplitter;
-import de.tudarmstadt.lt.seg.sentence.SentenceSplitterTest;
 import de.tudarmstadt.lt.seg.token.DiffTokenizer;
 import de.tudarmstadt.lt.seg.token.ITokenizer;
 import de.tudarmstadt.lt.seg.token.TokenizerTest;
@@ -55,11 +52,18 @@ public class TestParallelism {
 	}
 	
 	@Test
-	public void testReuseObject() {
-		ISentenceSplitter split = new RuleSplitter();
-		ITokenizer tok = new DiffTokenizer();
-//		Splitter new RuleSplitter()
-		Stream.generate(new DocSupplier()).limit(100).parallel().flatMap(doc -> split.init(doc).stream()).flatMap(s -> tok.init(s.asString()).stream()).forEach(System.out::println);		
+	public void testReuseObject() throws InterruptedException, ExecutionException {
+		ThreadLocal<ISentenceSplitter> split = ThreadLocal.withInitial(() -> new RuleSplitter());
+		ThreadLocal<ITokenizer> tok = ThreadLocal.withInitial(() -> new DiffTokenizer());
+		Stream<String> lines = Stream.generate(new DocSupplier());
+		ForkJoinPool forkJoinPool = new ForkJoinPool(10);
+		forkJoinPool.submit(() -> {
+			lines
+			.limit(1000)
+			.parallel()
+			.flatMap(doc -> split.get().init(doc).stream()).flatMap(s -> tok.get().init(s.asString()).stream()).forEach(s -> System.out.println(String.format("%d\t%s",Thread.currentThread().getId(), s)));
+		}).get();
+		
 	}
 
 }

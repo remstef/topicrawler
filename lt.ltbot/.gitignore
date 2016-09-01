@@ -13,7 +13,8 @@ target
 **/*.pyc
 
 # ipython notebook related
-**/.ipynb_checkpoints*
+.ipynb_checkpoints
+__pycache__
 
 # java compiled 
 **/*.class

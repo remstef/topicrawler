@@ -52,21 +52,22 @@ cp=${cp:1} # remove heading colon
 
 mainclass="de.tudarmstadt.lt.seg.app.Segmenter" # set main class
 
-# skip all -D.. parameters before other parameters and add them to JAVA_OPTS
-D=''
-while [[ $1 == -D* ]]; do
-	D="${D} ${1}"
+# skip all -D.. and -X.. parameters before the actual main class and add them later to JAVA_OPTS
+DX=''
+while [[ $1 == -D* || $1 == -X* ]]; do
+	DX="$DX $1"
 	shift
 done
-JAVA_OPTS="${JAVA_OPTS} ${D}"
+JAVA_OPTS="$JAVA_OPTS $DX"
 args=$@
 
 # add project.properties if not already in JAVA_OPTS
 if [[ ! $JAVA_OPTS == *"-Dproject.properties="* && -e ${ltseghome}/project.properties ]]; then JAVA_OPTS="$JAVA_OPTS -Dproject.properties=\"${ltseghome}/project.properties\"" ; fi
-# add log4j.properties if not already in JAVA_OPTS
-if [[ ! $JAVA_OPTS == *"-Dlog4j.configuration="* && -e ${ltseghome}/log4j.properties ]]; then JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:\"${ltseghome}/log4j.properties\"" ; fi
+# add logback.xml if not already in JAVA_OPTS
+if [[ ! $JAVA_OPTS == *"-Dlogback.configurationFile="* && -e ${ltseghome}/logback.xml ]]; then JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=\"${ltseghome}/logback.xml\"" ; fi
 # add Xmx and Xms if not set
-if [[ ! $JAVA_OPTS == *"-Xmx"* && ! $JAVA_OPTS == *"-Xms"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xmx128m -Xms128m" ; fi
+if [[ ! $JAVA_OPTS == *"-Xmx"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xmx128m" ; fi
+if [[ ! $JAVA_OPTS == *"-Xms"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xms128m" ; fi
 
 # try to find JAVA_HOME and set it accordingly
 if [ -z ${JAVA_HOME} ]; then

@@ -36,7 +36,8 @@ public class ExtendedGnuParser extends GnuParser {
 	@Override
 	protected void processOption(final String arg, final ListIterator iter) throws ParseException {
 		boolean hasOption = getOptions().hasOption(arg);
-
+		// TODO: do something with the unrecognized options
+		
 		if (hasOption || !ignoreUnrecognizedOption) {
 			super.processOption(arg, iter);
 		}

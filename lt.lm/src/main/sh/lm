@@ -52,8 +52,8 @@ cp=${cp:1} # remove heading colon
 
 # skip all -D.. and -X.. parameters before the actual main class and add them later to JAVA_OPTS
 DX=''
-while [[ "${1}" == -D* || "${1}" == -X* ]]; do
-	DX="${DX} \"${1}\""
+while [[ $1 == -D* || $1 == -X* ]]; do
+	DX="$DX $1"
 	shift
 done
 
@@ -75,7 +75,8 @@ if [[ ! $JAVA_OPTS == *"-Dproject.properties="* && -e ${lmhome}/project.properti
 # add logback.xml if not already in JAVA_OPTS
 if [[ ! $JAVA_OPTS == *"-Dlogback.configurationFile="* && -e ${lmhome}/logback.xml ]]; then JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=\"${lmhome}/logback.xml\"" ; fi
 # add Xmx and Xms if not set
-if [[ ! $JAVA_OPTS == *"-Xmx"* && ! $JAVA_OPTS == *"-Xms"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xmx2g -Xms2g" ; fi
+if [[ ! $JAVA_OPTS == *"-Xmx"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xmx2g" ; fi
+if [[ ! $JAVA_OPTS == *"-Xms"* ]]; then JAVA_OPTS="$JAVA_OPTS -Xms2g" ; fi
 
 # try to find JAVA_HOME and set it accordingly
 if [ -z ${JAVA_HOME} ]; then
@@ -110,7 +111,13 @@ fi
 if [ $test_var == 'y' -o $test_var == 'Y' ]
 then
 	echo "Start: `date`." >&2
-	eval "time ${command}" 
+	if [ $(which rlwrap) ]; then
+		echo "found rlwrap" >&2
+		eval "time rlwrap ${command}" 
+	else
+		echo "rlwrap not found." >&2
+		eval "time ${command}" 
+	fi
 	echo "Finished: `date`." >&2
 else
 	echo "Command execution cancelled." >&2

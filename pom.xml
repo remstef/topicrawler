@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    
+	<properties>
+    	<kd-suite.version>0.7.0</kd-suite.version>
+		<kd-suite.repodir>${project.basedir}/../repo</kd-suite.repodir>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<scala.version>2.11.7</scala.version>
+		<scala.binary.version>2.11</scala.binary.version>
+	</properties>
+
+    <groupId>de.tudarmstadt</groupId>
+    <artifactId>lt.kd-suite</artifactId>
+    <version>0.7.0</version>
+    <name>lt.kd-suite</name>
+
+    <packaging>pom</packaging>
+    
+	<repositories>
+		<repository>
+			<id>local-repository</id>
+			<url>file:///${kd-suite.repodir}</url>
+		</repository>
+	</repositories>
+
+    <modules>
+        <module>lt.utilities</module>
+        <module>lt.utilities.scala</module>
+        <module>lt.utilities.uima</module>
+        <module>lt.seg</module>
+        <module>lt.seg.hadoop</module>
+        <module>lt.lm</module>
+        <module>lt.ltbot</module>
+        <module>lt.lm.webapp</module>
+        <module>lt.parse</module>
+        <module>lt.n2n-v2</module>
+        <module>lt.n2n-v2-demo</module>
+        <module>lt.n2n-v2-scaleout</module>
+        <module>lt.n2n-v2-webdemo</module>
+        <module>lt.rd</module>
+        <module>lt.template-scala</module>
+    </modules>
+    
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
