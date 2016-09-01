@@ -32,7 +32,7 @@ tar -xvzf heritrix-*.tar.gz
 ```
 - download and unpack the latest topicrawler-plugin binaries into the heritrix directory [topicrawler-releases](https://github.com/tudarmstadt-lt/topicrawler/releases):
 ```
-wget https://github.com/tudarmstadt-lt/topicrawler/releases/download/v0.4.0d/lt.ltbot-0.4.0d-dist.tar.gz
+wget https://github.com/tudarmstadt-lt/topicrawler/releases/download/v0.7.0/lt.ltbot-0.7.0-dist.tar.gz
     
 tar -xvzf lt.ltbot-*.tar.gz --strip-components 1 -C heritrix-3.2.0
 ```
