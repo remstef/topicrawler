@@ -66,16 +66,18 @@ lt.seg comes with a number of parameters, run `seg -?` to get a list of options
 * `--normalize <level>` (`-nl`)
     * `0` (default): no normalization, each segment will be printed as it is in the input
     * `1`: reduce same consecutive non-word characters, e.g. multiple consecutive blanks will be merged to one. Example: "\t\t\n\t\t" -> "\t\n\t"
-    * `2`: `1` + replace consecutive numbers and digits within words and number segments themselves with the symbol `0`. Example 'He11o World. I am Johnny 5.' -> 'He0o World . I am Johnny 0 .'
-    * `3`: `2` + replace all non-word segments with its symbol.
-    * `4`: `3` + lowercase words.
+    * `2`: `1` + replace empty space and punctuation characters with its symbol 
+    * `3`: `2` + replace consecutive numbers and digits within words and number segments themselves with the symbol `0`. Example 'He11o World. I am Johnny 5.' -> 'He0o World . I am Johnny 0 .'
+    * `4`: `3` + replace all non-word segments with its symbol.
+    * `5`: `4` + lowercase words.
 * `--filter <level>` (`-fl`): *Note: examples below use normalization level (-nl)* `2` and DiffTokenizer
     * `0`: no filtering, each segment will be printed separated by blanks (this also includes emptyspace segments, in most cases you probably want to use at least `1` or `2`)
 	* `1`: filter control character segments
     * `2`: (default): `1` + filter emptyspace segments
     * `3`: `2` + filter unclassified and non-readable segments (attention: results heavily depend on tokenizer)
-    * `4`: `3` + filter punctuation characters. Example: "The number is 534 423 or 43. ? :-/ " -> "The number is 0 or 0"
-    * `5`: `4` + filter numbers and words with numbers. Example: "The number is 534 423 or 43. ? :-/ " -> "The number is or" (Only useful with proper token normalization level.)
+    * `4`: `3` + filter punctuation characters
+    * `5`: `4` + filter meta data like URLs, file descriptors, emails, wiki markup, emoticons, etc.
+    * `6`: `4` + filter numbers and words with numbers. Example: "The number is 534 423 or 43. ? :-/ " -> "The number is or" (Only useful with proper token normalization level.)
 * `--merge [<level>]` (`-ml`): *Note: examples below use normalization level (-nl)* `2`
 	* `0`: no merging (default when not specified)
 	* `1`: merge same consecutive token types if they are not words or words with numbers (default when just -ml specified). Example: "The number is 534 423 or 43. ? :-/ " -> "The number is 0 or 0 . "

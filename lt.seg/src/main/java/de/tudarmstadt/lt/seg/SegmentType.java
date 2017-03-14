@@ -28,14 +28,16 @@ import java.util.Set;
  */
 public enum SegmentType {
 	
-	TEXT("\u00a7", SegmentationUtils.chartypes),
 	
-	CONTROL("\ufffd",
+	
+	CONTROL("¶",
 			Character.CONTROL,
 			Character.FORMAT,
 			Character.SURROGATE),
 	
-	PARAGRAPH("\u00b6",
+	TEXT("T", SegmentationUtils.chartypes),
+	
+	PARAGRAPH("§",
 		Arrays.stream(SegmentationUtils.chartypes).filter( x -> 
 		x != Character.PARAGRAPH_SEPARATOR).toArray()),
 	
@@ -46,7 +48,6 @@ public enum SegmentType {
 		x != Character.START_PUNCTUATION && 
 		x != Character.END_PUNCTUATION).toArray()),
 
-	// \u2022
 	SENTENCE_BOUNDARY(". ",
 			Character.PARAGRAPH_SEPARATOR,
 			Character.DASH_PUNCTUATION,
@@ -105,8 +106,7 @@ public enum SegmentType {
 			Character.OTHER_LETTER
 			),
 
-	// \u2235 \u00b7
-	PUNCTUATION(".",
+	PUNCT(".",
 			Character.NON_SPACING_MARK,
 			Character.ENCLOSING_MARK,
 			Character.COMBINING_SPACING_MARK,
@@ -125,7 +125,7 @@ public enum SegmentType {
 			Character.CONTROL
 			),
 
-	NON_WORD("\u20a9",
+	NON_WORD("₩",
 		Arrays.stream(SegmentationUtils.chartypes).filter(x -> 
 		x != Character.UPPERCASE_LETTER &&
 		x != Character.LOWERCASE_LETTER &&
@@ -133,7 +133,29 @@ public enum SegmentType {
 		x != Character.MODIFIER_LETTER &&
 		x != Character.OTHER_LETTER).toArray()),
 
-	UNKNOWN("\u2e2e");
+	UNKNOWN("�"),
+	
+	EMAIL("📧"),
+	
+	DATE("📅"),
+	
+	TIME("⌚"),
+	
+	PHONE("☎"),
+	
+	META("📓"),
+
+	EMO("☺"),  
+	
+	URI("💻"),
+	
+	ABBRV("㍱"),
+	
+	REF("˃"),
+
+	UNSPECIFIED("⸮"),
+	
+	;
 	
 	public static EnumSet<SegmentType> TOKEN_TYPES = EnumSet.range(SegmentType.WORD,  SegmentType.NON_WORD);
 	

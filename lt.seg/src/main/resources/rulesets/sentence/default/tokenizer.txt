@@ -1,0 +1,10 @@
+##
+#
+# Define a conservative base tokenizer
+# This file should contain only one valid line
+#
+##
+
+de.tudarmstadt.lt.seg.token.DiffTokenizer
+
+# de.tudarmstadt.lt.seg.token.RuleTokenizer

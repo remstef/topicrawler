@@ -15,6 +15,7 @@
  */
 package de.tudarmstadt.lt.seg;
 
+import java.util.EnumSet;
 
 /**
  * 
@@ -40,6 +41,11 @@ public class Segment {
 	public boolean hasZeroLength(){
 		return begin == end;
 	}
+	
+	public int length(){
+		assert(text.length() == end - begin);
+		return end - begin;
+	}
 
 	public String asString(){
 		return text.toString();
@@ -49,7 +55,7 @@ public class Segment {
 		
 		String result = text.toString();
 
-		if(level >= 1 && type == SegmentType.NON_WORD){ // reduce non-word characters
+		if(level >= 1 && (type == SegmentType.NON_WORD || type == SegmentType.UNKNOWN)){ // reduce non-word characters
 			StringBuilder b = text.codePoints().boxed().reduce(new StringBuilder(), (x, y) -> {
 				if(x.length() == 0 || x.codePointBefore(x.length()) != y)
 					return x.appendCodePoint(y);
@@ -59,8 +65,17 @@ public class Segment {
 			});
 			result = b.toString();
 		}
+		
+		if(level >= 1 && type == SegmentType.CONTROL){ // reduce non-word characters
+			result = type.symbol();
+		}
+		
+		if(level >= 2 && (type == SegmentType.EMPTY_SPACE || type == SegmentType.PUNCT)){
+			// replace numbers, punctuation and empty spaces with a single symbol, no matter how long the number once was
+			result = type.symbol();
+		}
 
-		if(level >= 2){
+		if(level >= 3){
 			if(type == SegmentType.WORD_WITH_NUMBER){ // replace consecutive digits within a word
 				StringBuilder b = text.codePoints().boxed().reduce(new StringBuilder(), (x, y) -> {
 					if(x.length() == 0){
@@ -81,16 +96,16 @@ public class Segment {
 				});
 				result = b.toString();
 			}
-			if(type == SegmentType.NUMBER)
+			if(EnumSet.of(SegmentType.NUMBER, SegmentType.DATE, SegmentType.PHONE, SegmentType.TIME).contains(type))
 				result = type.symbol();
 		}
 		
-		if(level >= 3 && (type == SegmentType.EMPTY_SPACE || type == SegmentType.PUNCTUATION)){
-			// replace numbers, punctuation and empty spaces with a single symbol, no matter how long the number once was
-			result = type.symbol();
+		if(level >= 4){
+			if(EnumSet.complementOf(EnumSet.of(SegmentType.WORD, SegmentType.WORD_LOWERCASE, SegmentType.WORD_UPPERCASE, SegmentType.WORD_WITH_NUMBER, SegmentType.SENTENCE, SegmentType.ABBRV, SegmentType.PARAGRAPH, SegmentType.TEXT)).contains(type))
+				result = type.symbol();
 		}
 		
-		if(level >= 4)
+		if(level >= 5)
 			result = result.toLowerCase();
 
 		return result;
@@ -104,19 +119,31 @@ public class Segment {
 		return type == SegmentType.EMPTY_SPACE; 
 	}
 	
+	public boolean isPartOfSentence(){
+		return type == SegmentType.SENTENCE || type == SegmentType.SENTENCE_BOUNDARY; 
+	}
+	
 	public boolean isWord(){
 		return type == SegmentType.WORD ||   
 				type == SegmentType.WORD_UPPERCASE ||
 				type == SegmentType.WORD_LOWERCASE;
 	}
 
+	// TODO: replace with type.ordninal in range [x,y]. needs reordering of Segmenttypes 
 	public boolean isReadable(){
-		return type == SegmentType.WORD || 
-				type == SegmentType.NUMBER || 
-				type == SegmentType.WORD_WITH_NUMBER|| 
-				type == SegmentType.WORD_UPPERCASE ||
-				type == SegmentType.WORD_LOWERCASE ||
-				type == SegmentType.PUNCTUATION;  
+//		SegmentType.WORD,
+//		SegmentType.NUMBER,
+//		SegmentType.WORD_WITH_NUMBER, 
+//		SegmentType.WORD_UPPERCASE,
+//		SegmentType.WORD_LOWERCASE,
+//		SegmentType.PUNCT
+		return EnumSet.complementOf(EnumSet.of(
+					SegmentType.CONTROL,
+					SegmentType.UNKNOWN,
+					SegmentType.EMPTY_SPACE
+				)).contains(type); 
+		
+
 	}
 
 	/* (non-Javadoc)

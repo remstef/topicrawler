@@ -25,12 +25,14 @@ import java.io.Reader;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Created by Steffen Remus.
  */
 public class RuleTokenizer implements ITokenizer {
 
-    RuleSet _ruleset = RuleSet.DEFAULT_RULESET;
+    RuleSet _ruleset;
     ITokenizer _base_tokenizer;
 
     final Deque<Segment> _lookahead_buffer = new ArrayDeque<>(100);
@@ -56,11 +58,11 @@ public class RuleTokenizer implements ITokenizer {
 
         if(_lookahead_buffer.isEmpty())
             return false;
-
-        boolean changed_buffer = false;
-        changed_buffer = _ruleset._lookahead_list.find_next_token(_lookahead_buffer);
-        changed_buffer &= _ruleset._lookahead_rules.find_next_token(_lookahead_buffer);
-
+        
+        // if the lookahead list fires, ignore the lookahead rules
+        if(!_ruleset._lookahead_list.find_next_token(_lookahead_buffer))
+        	_ruleset._lookahead_rules.find_next_token(_lookahead_buffer);
+        
         Segment next_segment = _lookahead_buffer.poll();
         _segment.type = next_segment.type;
         _segment.text.append(next_segment.text);
@@ -70,20 +72,15 @@ public class RuleTokenizer implements ITokenizer {
         return true;
     }
 
-    public ITokenizer init(Reader reader, String languagecode) {
-        _ruleset = RuleSet.get(languagecode);
-        _base_tokenizer = _ruleset._base_tokenizer.newTokenizer();
-        return init(reader);
+    public ITokenizer initParam(String languagecode) {
+        RuleSet rs = null;
+        if(!StringUtils.isEmpty(languagecode))
+        	RuleSet.get(languagecode);
+        return initParam(rs);
     }
 
-    public ITokenizer init(Reader reader, RuleSet rules) {
-        _ruleset = rules;
-        _base_tokenizer = _ruleset._base_tokenizer.newTokenizer();
-        return init(reader);
-    }
-
-    public ITokenizer init(RuleSet rules) {
-        _ruleset = rules;
+    public ITokenizer initParam(RuleSet rules) {
+        _ruleset = rules == null ? RuleSet.DEFAULT_RULESET : rules;
         _base_tokenizer = _ruleset._base_tokenizer.newTokenizer();
         return this;
     }
@@ -91,7 +88,8 @@ public class RuleTokenizer implements ITokenizer {
     @Override
     public ITokenizer init(Reader reader) {
         if(_base_tokenizer == null)
-            _base_tokenizer = _ruleset._base_tokenizer.newTokenizer();
+        	initParam("default");
+        _lookahead_buffer.clear();
         _base_tokenizer.init(reader);
         return this;
     }

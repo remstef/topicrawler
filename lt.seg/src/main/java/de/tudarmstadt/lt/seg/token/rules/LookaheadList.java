@@ -93,7 +93,7 @@ public class LookaheadList {
         }
 
         if(longest_match != null) {
-            next_segment.type = SegmentType.WORD_WITH_NUMBER;
+            next_segment.type = SegmentType.ABBRV;
             // fast forward
             while (!lookahead_buffer.isEmpty() && lookahead_buffer.peek().end <= next_segment.begin + longest_match.length())
                 next_segment.end = lookahead_buffer.poll().end;

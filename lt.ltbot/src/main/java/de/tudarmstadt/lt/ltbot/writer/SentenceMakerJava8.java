@@ -59,6 +59,7 @@ class SentenceMakerJava8 {
 	}
 	public void setTargetLanguageCode(String target_language_code){
 		_target_language_code = target_language_code;
+		_rule_splitter.get().initParam(_target_language_code, false);
 	}
 
 	public Stream<String> getSentencesStream(String text){
@@ -67,7 +68,7 @@ class SentenceMakerJava8 {
 
 	public Stream<String> getSentencesStream(String text, String languagecode){
 		return _line_splitter.get().init(new StringReader(text)).stream().filter(s -> s.type == SegmentType.SENTENCE).map(Segment::asString).flatMap(line -> {
-			return _rule_splitter.get().init(new StringReader(line), languagecode).stream().filter(s -> s.type == SegmentType.SENTENCE).sequential().map(s -> {
+			return _rule_splitter.get().init(new StringReader(line)).stream().filter(s -> s.type == SegmentType.SENTENCE).sequential().map(s -> {
 				final AtomicInteger c = new AtomicInteger();
 				String r = _tokenizer.get().init(s.asString()).stream().sequential().map(t -> {
 					if(t.isWord())

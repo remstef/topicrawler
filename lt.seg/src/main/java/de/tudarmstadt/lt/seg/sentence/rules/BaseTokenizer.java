@@ -15,7 +15,7 @@
  *
  */
 
-package de.tudarmstadt.lt.seg.token.rules;
+package de.tudarmstadt.lt.seg.sentence.rules;
 
 import de.tudarmstadt.lt.seg.token.ITokenizer;
 
@@ -42,7 +42,7 @@ public class BaseTokenizer {
     public static final BaseTokenizer DEFAULT;
 
     private BaseTokenizer() throws Exception {
-        this(Thread.currentThread().getContextClassLoader().getResource("rulesets/token/default/tokenizer.txt"), Charset.forName("UTF-8"));
+        this(Thread.currentThread().getContextClassLoader().getResource("rulesets/sentence/default/tokenizer.txt"), Charset.forName("UTF-8"));
     }
 
     public BaseTokenizer(URL tokenizer_file_location, Charset cs) throws Exception {

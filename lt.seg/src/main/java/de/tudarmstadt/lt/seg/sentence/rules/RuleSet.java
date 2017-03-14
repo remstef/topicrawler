@@ -47,6 +47,7 @@ public class RuleSet {
 	}
 
 	private RuleSet(){
+		_base_tokenizer = BaseTokenizer.DEFAULT;
 		_boundary_checker = BoundaryList.DEFAULT;
 		_pre_boundary_checker_list = PreBoundaryListProcessor.DEFAULT;
 		_pre_boundary_checker_rules = PreBoundaryRulesProcessor.DEFAULT;
@@ -56,11 +57,12 @@ public class RuleSet {
 		RULE_SETS.put(_name, this);
 	}
 	
-	private RuleSet(String name, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location){
-		this(name, boundary_file_location, pre_boundary_file_location, pre_boundary_rule_file_location, post_boundary_file_location, post_boundary_rule_file_location, Charset.defaultCharset());
+	private RuleSet(String name, URL basetokenizer_file_location, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location){
+		this(name, basetokenizer_file_location, boundary_file_location, pre_boundary_file_location, pre_boundary_rule_file_location, post_boundary_file_location, post_boundary_rule_file_location, Charset.defaultCharset());
 	}
 	
-	private RuleSet(String name, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location,Charset cs){
+	private RuleSet(String name, URL basetokenizer_file_location, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location,Charset cs){
+		try{ _base_tokenizer = basetokenizer_file_location == null ? BaseTokenizer.DEFAULT : new BaseTokenizer(basetokenizer_file_location, cs) /*load tokenizer*/; }catch(Exception e){ throw new IllegalArgumentException(e); }
 		try{ _boundary_checker = boundary_file_location == null ? BoundaryList.DEFAULT : new BoundaryList(boundary_file_location, cs); }catch(Exception e){ throw new IllegalArgumentException(e); }
 		try{ _pre_boundary_checker_list = pre_boundary_file_location == null ? PreBoundaryListProcessor.DEFAULT : new PreBoundaryListProcessor(pre_boundary_file_location, cs); }catch(Exception e){ throw new IllegalArgumentException(e); }
 		try{ _pre_boundary_checker_rules = pre_boundary_rule_file_location == null ? PreBoundaryRulesProcessor.DEFAULT : new PreBoundaryRulesProcessor(pre_boundary_rule_file_location, cs); }catch(Exception e){ throw new IllegalArgumentException(e); }
@@ -70,7 +72,8 @@ public class RuleSet {
 		RULE_SETS.put(_name, this);
 	}
 	
-	private RuleSet(String name, BoundaryList boundary_checker, PreBoundaryListProcessor pre_boundary_checker_list, PreBoundaryRulesProcessor pre_boundary_checker_rules, PostBoundaryListProcessor post_boundary_checker_list, PostBoundaryRulesProcessor post_boundary_checker_rules){
+	private RuleSet(String name, BaseTokenizer base_tokenizer, BoundaryList boundary_checker, PreBoundaryListProcessor pre_boundary_checker_list, PreBoundaryRulesProcessor pre_boundary_checker_rules, PostBoundaryListProcessor post_boundary_checker_list, PostBoundaryRulesProcessor post_boundary_checker_rules){
+		_base_tokenizer = base_tokenizer;
 		_boundary_checker = boundary_checker;
 		_pre_boundary_checker_list = pre_boundary_checker_list;
 		_pre_boundary_checker_rules = pre_boundary_checker_rules;
@@ -80,7 +83,8 @@ public class RuleSet {
 		RULE_SETS.put(_name, this);
 	}
 	
-	public final String _name; 
+	public final String _name;
+	public final BaseTokenizer _base_tokenizer;
 	public final BoundaryList _boundary_checker;
 	public final PreBoundaryListProcessor _pre_boundary_checker_list;
 	public final PreBoundaryRulesProcessor _pre_boundary_checker_rules;
@@ -96,6 +100,7 @@ public class RuleSet {
 		String basedir = "rulesets/sentence/" + name + "/";
 		r = newRuleSet(
 				name, 
+				Thread.currentThread().getContextClassLoader().getResource(basedir + "tokenizer.txt"),
 				Thread.currentThread().getContextClassLoader().getResource(basedir + "boundaries.txt"), 
 				Thread.currentThread().getContextClassLoader().getResource(basedir + "preBoundaryExceptions.txt"), 
 				Thread.currentThread().getContextClassLoader().getResource(basedir + "preBoundaryRules.txt"), 
@@ -129,15 +134,15 @@ public class RuleSet {
 		return r;
 	}
 	
-	public static RuleSet newRuleSet(String name, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location){
-		return newRuleSet(name, boundary_file_location, pre_boundary_file_location, pre_boundary_rule_file_location, post_boundary_file_location, post_boundary_rule_file_location, Charset.defaultCharset());
+	public static RuleSet newRuleSet(String name, URL basetokenizer_file_location, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location){
+		return newRuleSet(name, basetokenizer_file_location, boundary_file_location, pre_boundary_file_location, pre_boundary_rule_file_location, post_boundary_file_location, post_boundary_rule_file_location, Charset.defaultCharset());
 	}
 	
-	public static RuleSet newRuleSet(String name, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location, Charset cs){
+	public static RuleSet newRuleSet(String name, URL basetokenizer_file_location, URL boundary_file_location, URL pre_boundary_file_location, URL pre_boundary_rule_file_location, URL post_boundary_file_location, URL post_boundary_rule_file_location, Charset cs){
 		RuleSet r = RULE_SETS.get(name);
 		if(r != null)
 			return r;
-		r = new RuleSet(name, boundary_file_location, pre_boundary_file_location, pre_boundary_rule_file_location, post_boundary_file_location, post_boundary_rule_file_location, cs);
+		r = new RuleSet(name, basetokenizer_file_location,  boundary_file_location, pre_boundary_file_location, pre_boundary_rule_file_location, post_boundary_file_location, post_boundary_rule_file_location, cs);
 		return r;
 	}
 

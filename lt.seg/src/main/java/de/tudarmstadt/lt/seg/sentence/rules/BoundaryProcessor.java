@@ -8,9 +8,7 @@ public interface BoundaryProcessor {
 	 * @param candidate
 	 * @return
 	 */
-	default boolean isCompleteSentence(String candidate){
-		return !isIncompleteSentence(candidate);
-	}
+	boolean isCompleteSentence(String candidate);
 
 	/**
 	 * 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.7.0
+VERSION=0.7.1
 DIR="topicrawler-${VERSION}"
 
 mkdir -p ${DIR}
@@ -19,7 +19,6 @@ if [ ! -e "lt.ltbot-${VERSION}-dist.tar.gz" ]; then
 fi
 
 tar -xvzf lt.ltbot-*.tar.gz --strip-components 1 -C heritrix-3.2.0
-
 
 
 

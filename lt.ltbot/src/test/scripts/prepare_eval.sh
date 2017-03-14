@@ -59,4 +59,27 @@ for t in ai-en vehicles-en plants-en; do for m in nf 1 2 3 5; do d=$b/$t-$m; cat
 find . -name docperps.tsv | while read f; do d=$(dirname $f); cat $f | perl -F\\t -lanE 'if($F[1] =~ /.*[0-9].*/ && $F[1]<1e4){print $_}' > $d/docperps-pr1e4.tsv &  done
 
 
+dirs="ai-en-5 plants-en-5 vehicles-en-5"; for d in $dirs; do zcat $d/crawl-sentences.txt.gz | cut -f1 | head -c 11GB > $d/crawl-sentences-11GB.txt; done
+
+### steffen@farnsworth:/mnt/farnsworthshare/semeval-2015-task17-texeval/wiki$ zcat wikipedia.txt.gz | wc
+### 109136195 1868200724 11792896391
+### wikipedia 11.8GB non-unique
+
+dirs="ai-en-nf vehicles-en-nf plants-en-nf"
+for d in $dirs; do jobs=$(ls -tr $d | grep job); for j in $jobs; do files=$(ls -tr $d/$j/sentences/ | grep "HTML.*\.txt\.gz"); for f in $files; do zcat $d/$j/sentences/$f | cut -f2,5 | gzip -c >> $d/crawl-sentences.txt.gz ; done ; done & done
+
+# check size
+fun () { zcat $1 | wc > $1.wc; }; for d in $dirs; do fun $d/crawl-sentences.txt.gz & done
+	
+dirs="ai-en-nf plants-en-nf vehicles-en-nf"; for d in $dirs; do zcat $d/crawl-sentences.txt.gz | cut -f1 | head -c 11GB > $d/crawl-sentences-11GB.txt; done
+
+# combine function with find command
+fun () { echo $1; ls -lah $1; }; find . -maxdepth 1 -type d -name "*-nf" | while read d; do fun $d; done
+
+# sync to farnsworth 	
+fun () { rsync -avvzhP $1/crawl-sentences* fw:data/semeval-2015-task17-texeval/$1/ ;  }
+find . -maxdepth 1 -type d -name "*-nf" | while read d; do fun $d & done
+
+	 
+
 	

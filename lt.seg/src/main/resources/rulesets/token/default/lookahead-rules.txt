@@ -23,35 +23,34 @@
 ##
 
 # url (rough estimate), can end with closing bracket, but only if an opening bracket occured within the url
-+ ((https?)|(ftps?)|(doi))://[^\s:]+(([/a-zA-Z0-9?])|((?<=\([^\(/]{0,20})\)))
++:EMAIL ((https?)|(ftps?)|(doi))://[^\s:]+(([/a-zA-Z0-9?])|((?<=\([^\(/]{0,20})\)))
 
 # websites like amazon.co.uk Fette-henne.info (rough estimate) ... might even be catenated (tagesschau.de-App)
-+ (((\w(-\w)?)+\.)+(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum|asia|[a-z]{2}|[A-Z]{2}))(-((?>\p{L}\p{M}*)|[_\-])+)?
++:URI (((\w(-\w)?)+\.)+(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum|asia|[a-z]{2}|[A-Z]{2}))(-((?>\p{L}\p{M}*)|[_\-])+)?
 
 # file names (roughly)
-+ (?i)(((?>\p{L}\p{M}*)|[0-9\.~_-])+\.(pdf|avi|wmv|mpe?g|mp3|m4v|mp4|ogg|midi|wav|rar|zip|tar|gz|7z|doc|xls|odt|conf|swf|flv|js|css|exe|bat|sh|py|pl|iso|dmg|bmp|gif|jpe?g|png|svg|tiff?|ico))
-
++:URI (?i)(((?>\p{L}\p{M}*)|[0-9\.~_-])+\.(pdf|avi|wmv|mpe?g|mp3|m4v|mp4|ogg|midi|wav|rar|zip|tar|gz|7z|doc|xls|odt|conf|swf|flv|js|css|exe|bat|sh|py|pl|iso|dmg|bmp|gif|jpe?g|png|svg|tiff?|ico))
 
 # email
-+ [\.+\w\-]+@([\w\-]+\.)+[\w]{2,6}\b
++:EMAIL [\.+\w\-]+@([\w\-]+\.)+[\w]{2,6}\b
 
 # german phone numbers (very rough estimate)
-+ (\+|00)49[^ ]+
++:PHONE (\+|00)49[^ ]+
 
 # two slashes (wiki comments)
-+ //
++:META //
 
 # wiki links
-+ \[\[.+\]\]
++:META \[\[.+\]\]
 
 # decimal numbers (german format)(negative look behind don't match 2 or 4 digits after a dot since they are probably years ;positive lookforward match space but not numbers or dots)
-+ -?(([1-9]\d{0,2}(\.\d{3})+)(,\d+)?)|(\d+,\d+)(?<!\.\d{4}|\d{2})(?=\s*[^\.,\d])
++:NUMBER -?(([1-9]\d{0,2}(\.\d{3})+)(,\d+)?)|(\d+,\d+)(?<!\.\d{4}|\d{2})(?=\s*[^\.,\d])
 
 # but don't match dates with the pattern before
 - [0-3]?[0-9]\.[0-1]?[0-9]\.[1-9][0-9]{1,3}
 
 # decimal numbers (english format)
-+ -?(([1-9]\d{0,2}(,\d{3})+)(\.\d+)?)|(\d+\.\d+)(?<!\.\d{4}|\d{2})(?=\s*[^\.,\d])
++:NUMBER -?(([1-9]\d{0,2}(,\d{3})+)(\.\d+)?)|(\d+\.\d+)(?<!\.\d{4}|\d{2})(?=\s*[^\.,\d])
 
 # but don't match dates with the pattern before
 - [0-3]?[0-9]\.[0-1]?[0-9]\.[1-9][0-9]{1,3}
@@ -60,22 +59,22 @@
 + ((?>\p{L}\p{M}*)|[_-])+[/-][Ii][Nn]([Nn][Ee][Nn])?\b
 
 # xml tags
-+ <([\w ]+ *= *['\"].+['\"] *)+/>
++:META <([\w ]+ *= *['\"].+['\"] *)+/>
 
 # xml comment tags (rough estimate)
-+ <!--.*-->
++:META <!--.*-->
 
 # consecutive dots, question marks or exclamation marks or ?!
-+ (\.{2,6})|([\?!]{2,6})
++:PUNCT (\.{2,6})|([\?!]{2,6})
 
 # match only the colon if it is followed by ( or [ and a character since it might not be a smiley
-+ :(?= ?(\[|\()\1{0,1}\w)
++:PUNCT :(?= ?(\[|\()\1{0,1}\w)
 
 # emoticons e.g.  :-) ;-) B-D :P :-$ :'( X-D and emphasizable emoticons :-)))) :'((( :-DDD
-+ [:;8BX=]{1,2}'? ?[-Oo]? ?([)(\]\[\|DPpd*+SxX$])\1{0,}
++:EMO [:;8BX=]{1,2}'? ?[-Oo]? ?([)(\]\[\|DPpd*+SxX$])\1{0,}
 
 # reverse reverse emoticons (-: (-; ...
-+ ([)(\]\[\|DPpd*+SxX$])\1{0,} ?-? ?'?[:;8BX=]
++:EMO ([)(\]\[\|DPpd*+SxX$])\1{0,} ?-? ?'?[:;8BX=]
 
 # don't match ): as it might be just a closing bracket followed by a colon
 - \) ?:
@@ -83,65 +82,66 @@
 - \);
 
 # other emoticons ^^ ^_^ *_*
-+ ([\^\*O0oa\$])[_-]?\1
++:EMO ([\^\*O0oa\$])[_-]?\1
 
 # emotive expressions :wink:, :cookie:,...
-+ :\w+:
++:EMO :\w+:
 
 # short words with hyphen and number
-+ (?>\p{L}\p{M}*){1,5}-\d{1,5}
-
-#+ [Ee]-mail\b // special words (e-mail)
-#+ (P[Ss])|(ps): // special words (PS:)
++:WORD (?>\p{L}\p{M}*){1,5}-\d{1,5}
 
 # lowercase words with hypen at the beginning
-+ -(?>\p{Ll}\p{M}*)+\b
++:WORD -(?>\p{Ll}\p{M}*)+\b
 
 # some abbreviations
-+ (([Ee]tc)|([Cc]a)|([Uu]a)|([Bb]zw)|([zZ]B)|([Ee]vtl)|([Oo]\.?[Kk])|([Nn]r)|([Jj]h)|([Jj]mdn)|([Jj]dn)|([Ee]tw)|([Mm]hd)|([Nn]hd)|([Vv]t)|([Vv]ll?t)|([Mm]ihd)|([Jj]n)|([Gg]gf)|(schriftl)|(usw)|(ggf)|([Aa]llg)|([Ee]ngl)|([I]nkl))\.
++:ABBRV (([Ee]tc)|([Cc]a)|([Uu]a)|([Bb]zw)|([zZ]B)|([Ee]vtl)|([Oo]\.?[Kk])|([Nn]r)|([Jj]h)|([Jj]mdn)|([Jj]dn)|([Ee]tw)|([Mm]hd)|([Nn]hd)|([Vv]t)|([Vv]ll?t)|([Mm]ihd)|([Jj]n)|([Gg]gf)|(schriftl)|(usw)|(ggf)|([Aa]llg)|([Ee]ngl)|([I]nkl))\.
 
 # some suffixes
-+ ((?>\p{L}\p{M}*)|[_-])+((schr)|(ftl))\.
++:ABBRV ((?>\p{L}\p{M}*)|[_-])+((schr)|(ftl))\.
 
 # split u.a. to u. and a. same with z. and B. but not o.k.?? because empiriST says so
-+ (?>\p{L}\p{M}*)\.
++:ABBRV (?>\p{L}\p{M}*)\.
 
 # 's or wrongly ´s `s ’s
-+ ((?>\p{L}\p{M}*)|[_-])+[’'´`]s(?!\w*$)
++:WORD ((?>\p{L}\p{M}*)|[_-])+[’'´`]s(?!\w*$)
 
 # 'nem
-+ [’'´`](?>\p{Ll}\p{M}*)+\b
++:WORD [’'´`](?>\p{Ll}\p{M}*)+\b
 
 # words separated by underscore
-+ (?>\p{L}\p{M}*)+_(?>\p{L}\p{M}*)+\b
++:WORD (?>\p{L}\p{M}*)+_(?>\p{L}\p{M}*)+\b
 
 # words separated by hyphen when next word starts with uppercase letter
-+ (?>\p{L}\p{M}*)((?>\p{L}\p{M}*)|[_-])+-(?>\p{L}\p{M}*)(?>\p{L}\p{M}*)+\b
++:WORD (?>\p{L}\p{M}*)((?>\p{L}\p{M}*)|[_-])+-(?>\p{L}\p{M}*)(?>\p{L}\p{M}*)+\b
 
 # words separated by hyphen
-+ (?>\p{L}\p{M}*)((?>\p{L}\p{M}*)|[_-])+-(?>\p{L}\p{M}*)+\b
++:WORD (?>\p{L}\p{M}*)((?>\p{L}\p{M}*)|[_-])+-(?>\p{L}\p{M}*)+\b
 
 # words with hypen at the end, but not a word after (?=\W)
-+ (?>\p{L}\p{M}*)+-
++:WORD (?>\p{L}\p{M}*)+-
 
 # hashtags and mentions
-+ [@#][(?>\p{L}\p{M}*)|\d|_]+
++:REF [@#][(?>\p{L}\p{M}*)|\d|_]+
 
 # time in HH:MM:SS format
-+ [0-2]?[0-9][:\.][0-5][0-9]([:\.][0-5][0-9])?
++:TIME [0-2]?[0-9][:\.][0-5][0-9]([:\.][0-5][0-9])?
 
 # but don't match dates with the pattern before
 - [0-3]?[0-9]\.[0-1]?[0-9]\.[1-9][0-9]{1,3}
 
 # numbers (max 3 digits) with dots at the end but not at the end of the string (possibly end of sentence (look-ahead))
-+ \d{1,3}\.+(?![\s\d]*$)
-+ -\d{1,2}\.+(?![\s\d]*$)
++:NUMBER \d{1,3}\.+(?![\s\d]*$)
++:NUMBER -\d{1,2}\.+(?![\s\d]*$)
+
+# any integer number (possibly end of sentence (look-ahead))
++:NUMBER \d+
++:NUMBER -\d+
 
 # arrows --> <--
 + (-+>+)|(<+-+)
 
 # special english (I've, you're, don't) should stick together
-+ \w+[’'´`](ve|re|t)
++:WORD \w+[’'´`](ve|re|t)
 
 # finally, some rules for cleaning up 2013-12-1 to 2013 -12 -1  also (with / and .) and 2-4fache but keep 30-jähriger
 + -?[0-9]+(?=-[^A-Za-z])
@@ -150,7 +150,7 @@
 + \.[0-9]{1,2}
 
 #  ... and match words with numbers, hypens, underscore, html entities, basically almost everything
-+ ((?>\p{L}\p{M}*)|[0-9_-]|(&[A-Za-z]+;)|(&#[0-9]{4};)|(&#x[0-9A-Fa-f]{4};))+
++:WORD ((?>\p{L}\p{M}*)|[0-9_-]|(&[A-Za-z]+;)|(&#[0-9]{4};)|(&#x[0-9A-Fa-f]{4};))+
 
 # but not measurements
 - (?iu)(\d+((m|([ckqm][mg][h]?))|h))

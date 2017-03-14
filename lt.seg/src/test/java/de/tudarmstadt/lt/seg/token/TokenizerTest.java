@@ -16,6 +16,7 @@
 package de.tudarmstadt.lt.seg.token;
 
 import java.util.Spliterator;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -66,6 +67,13 @@ public class TokenizerTest {
 	public void segmentsBreakTokenizer(){
 		new BreakTokenizer().init(TEST_TEXT).forEach(System.out::println);
 		System.out.println();
+	}
+	
+	@Test
+	public void segmentsRuleTokenizer(){
+		final AtomicInteger n = new AtomicInteger(0);
+		new RuleTokenizer().init(TEST_TEXT).forEach(seg -> {n.incrementAndGet(); System.out.println(seg);});
+		System.out.format("%d token segments %n%n", n.get());
 	}
 	
 	@Test

@@ -90,6 +90,7 @@ public class Segmenter implements Runnable{
 		opts.addOption(OptionBuilder.withLongOpt("onedocperline").withDescription("Specify if you want to process documents linewise and preserve document ids, i.e. map line numbers to sentences.").create("l"));
 		opts.addOption(OptionBuilder.withLongOpt("sentence-ruleset").withArgName("languagecode").hasArg().withDescription(String.format("Specify the ruleset that you want to use together with RuleSplitter (avaliable: %s) (default: 'default')", de.tudarmstadt.lt.seg.sentence.rules.RuleSet.getAvailable())).create());
 		opts.addOption(OptionBuilder.withLongOpt("token-ruleset").withArgName("languagecode").hasArg().withDescription(String.format("Specify the ruleset that you want to use together with RuleTokenizer (avaliable: %s) (default: 'default')", de.tudarmstadt.lt.seg.token.rules.RuleSet.getAvailable())).create());
+		opts.addOption(OptionBuilder.withLongOpt("boundary-as-part-of-sentence").withDescription("Specify if sentence boundaries should be part of the sentence segment (default: true).").hasArg().withArgName("true|false").create("bps"));
 		opts.addOption(OptionBuilder.withLongOpt("debug").withDescription("Enable debugging.").create());
 	}
 
@@ -121,6 +122,7 @@ public class Segmenter implements Runnable{
 			_one_doc_per_line =			cmd.hasOption("l");
 			_ruleset_sentence =			cmd.getOptionValue("sentence-ruleset");
 			_ruleset_token =			cmd.getOptionValue("token-ruleset");
+			_boundary_as_part_of_sentence = Boolean.parseBoolean(cmd.getOptionValue("boundary-as-part-of-sentence","true"));
 
 			DEBUG =						cmd.hasOption("debug");
 			if(DEBUG){
@@ -150,6 +152,7 @@ public class Segmenter implements Runnable{
 	boolean _one_doc_per_line;
 	boolean _merge_types;
 	boolean _merge_tokens;
+	boolean _boundary_as_part_of_sentence;
 
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
@@ -312,6 +315,11 @@ public class Segmenter implements Runnable{
 		try{
 			final StringBuffer buf = new StringBuffer(); // used for checking of stream is empty; take care when not running sequentially but in parallel!
 			sentenceSplitter.init(reader).stream().sequential().forEach(sentence_segment -> {
+				if(DEBUG){
+					writer.format("%s%s", docid, separator_desc);
+					writer.println(sentence_segment.toString());
+					writer.print(separator_sentence);
+				}
 				if(sentence_segment.type != SegmentType.SENTENCE)
 					return;
 				tokenizer.init(sentence_segment.asString());
@@ -336,7 +344,11 @@ public class Segmenter implements Runnable{
 				}
 			});
 		}catch(Exception e){
-			System.err.format("%s: ", e.getClass(), e.getMessage());
+			Throwable t = e;
+			while(t != null){
+				System.err.format("%s: %s%n", e.getClass(), e.getMessage());
+				t = e.getCause();
+			}
 		}
 	}
 
@@ -347,7 +359,7 @@ public class Segmenter implements Runnable{
 		ITokenizer instance = clazz.newInstance();
 		if(RuleTokenizer.class.getSimpleName().equals(_tokenizer_type)){
 			de.tudarmstadt.lt.seg.token.rules.RuleSet rs = de.tudarmstadt.lt.seg.token.rules.RuleSet.get(_ruleset_sentence);
-			((RuleTokenizer)instance).init(rs);
+			((RuleTokenizer)instance).initParam(rs);
 		}
 		return instance;
 	}
@@ -359,7 +371,7 @@ public class Segmenter implements Runnable{
 		ISentenceSplitter instance = clazz.newInstance();
 		if(RuleSplitter.class.getSimpleName().equals(_sentence_splitter_type)){
 			de.tudarmstadt.lt.seg.sentence.rules.RuleSet rs = de.tudarmstadt.lt.seg.sentence.rules.RuleSet.get(_ruleset_sentence);
-			((RuleSplitter)instance).init(rs);
+			((RuleSplitter)instance).initParam(rs, _boundary_as_part_of_sentence);
 		}
 		return instance;
 	}

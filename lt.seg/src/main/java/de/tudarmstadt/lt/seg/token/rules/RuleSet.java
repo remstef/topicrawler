@@ -45,7 +45,7 @@ public class RuleSet {
     private RuleSet(){
         _base_tokenizer = BaseTokenizer.DEFAULT;
         _lookahead_list = LookaheadList.DEFAULT;
-        _lookahead_rules = LookaheadRules.DEFAULT;
+        _lookahead_rules = NamedLookaheadRules.DEFAULT;
         _name = "default";
         RULE_SETS.put(_name, this);
     }
@@ -55,14 +55,14 @@ public class RuleSet {
     }
 
     private RuleSet(String name, URL basetokenizer_file_location, URL lookahead_list_file_location, URL lookahead_rules_file_location, Charset cs){
-        try{ _base_tokenizer = basetokenizer_file_location == null ? null /*BoundaryList.DEFAULT*/ : null /*load tokenizer*/; }catch(Exception e){ throw new IllegalArgumentException(e); }
+        try{ _base_tokenizer = basetokenizer_file_location == null ? BaseTokenizer.DEFAULT : new BaseTokenizer(basetokenizer_file_location, cs) /*load tokenizer*/; }catch(Exception e){ throw new IllegalArgumentException(e); }
         try{ _lookahead_list = lookahead_list_file_location == null ? LookaheadList.DEFAULT : new LookaheadList(lookahead_list_file_location, cs); }catch(Exception e){ throw new IllegalArgumentException(e); }
-        try{ _lookahead_rules = lookahead_rules_file_location == null ? LookaheadRules.DEFAULT : new LookaheadRules(lookahead_rules_file_location, cs); }catch(Exception e){ throw new IllegalArgumentException(e); }
+        try{ _lookahead_rules = lookahead_rules_file_location == null ? NamedLookaheadRules.DEFAULT : new NamedLookaheadRules(lookahead_rules_file_location, cs); }catch(Exception e){ throw new IllegalArgumentException(e); }
         _name = name;
         RULE_SETS.put(_name, this);
     }
 
-    private RuleSet(String name, BaseTokenizer base_tokenizer, LookaheadList lookahead_list, LookaheadRules lookahead_rules){
+    private RuleSet(String name, BaseTokenizer base_tokenizer, LookaheadList lookahead_list, NamedLookaheadRules lookahead_rules){
         _name = name;
         _base_tokenizer = base_tokenizer;
         _lookahead_list = lookahead_list;
@@ -73,7 +73,7 @@ public class RuleSet {
     public final String _name;
     public final BaseTokenizer _base_tokenizer;
     public final LookaheadList _lookahead_list;
-    public final LookaheadRules _lookahead_rules;
+    public final NamedLookaheadRules _lookahead_rules;
 
     public static RuleSet get(String name){
         RuleSet r = RULE_SETS.get(name);

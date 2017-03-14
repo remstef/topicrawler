@@ -51,11 +51,14 @@ lib_dir=${lmhome}/lib; while IFS= read -r -d '' f; do cp=${cp}:"${f}"; done < <(
 cp=${cp:1} # remove heading colon
 
 # skip all -D.. and -X.. parameters before the actual main class and add them later to JAVA_OPTS
-DX=''
+DX=""
 while [[ $1 == -D* || $1 == -X* ]]; do
-	DX="$DX $1"
+	DX="$DX "$(printf '%q' "${1}") # quote args
 	shift
 done
+JAVA_OPTS="$JAVA_OPTS $DX"
+args=""
+for arg in "${@}"; do args="$args "$(printf '%q' "${arg}"); done # quote args
 
 mainclass=${1:-MainFinder} # set main class if no further arg was provided
 if [ ! -z "$1" ]; then # if at least one arg was passed

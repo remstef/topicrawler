@@ -2,6 +2,7 @@
 #
 # List of possible line endings. Converts java escape sequences e.g. \u0020 = ' ', \n = newline
 # Type \# to add hash character
+# Note: pay attention to spaces in lines
 #
 ##
 \t
@@ -35,6 +36,7 @@
 !\n
 ?\n
 .\n
+.\\n
 !\r\n
 ?\r\n
 .\r\n

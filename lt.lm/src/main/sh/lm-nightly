@@ -11,4 +11,9 @@ lmsrc="${kdhome}/lt.lm"
 
 tgt=$(find "${lmsrc}/target" -type f -name "lm" | grep "dist/" | head -n1)
 
-eval "${tgt} $@"
+args=""
+for arg in "${@}"; do args="$args "$(printf '%q' "${arg}"); done # quote args
+
+cmd="${tgt} "${args}
+
+eval "${cmd}"

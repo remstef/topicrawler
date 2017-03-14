@@ -11,8 +11,6 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.tudarmstadt.lt.seg.SegmentationUtils;
-
 public class PostBoundaryRulesProcessor implements BoundaryProcessor {
 	
 	Map<Pattern, Boolean> _patterns_and_decisions = Collections.emptyMap();
@@ -62,17 +60,10 @@ public class PostBoundaryRulesProcessor implements BoundaryProcessor {
 	}
 	
 	@Override
-	public boolean isCompleteSentence(String text) {
-		// try to find the first token, approximate heuristically by using emptyspaces TODO: use a sophisticated ITokenizer e.g. DiffTokenizer
-		int first_token_end;
-		for(first_token_end = 1; first_token_end < text.length(); first_token_end++)
-			if(SegmentationUtils.charIsEmptySpace(text.codePointAt(first_token_end)))
-				break;
-		String first_token = text.substring(0,first_token_end); 
-
+	public boolean isCompleteSentence(String candidate_after_boundary) {
 		boolean result = true;
 		for (final Entry<Pattern, Boolean> entry : _patterns_and_decisions.entrySet()) {
-			Matcher matcher = entry.getKey().matcher(first_token);
+			Matcher matcher = entry.getKey().matcher(candidate_after_boundary);
 			if (matcher.matches()) 
 				result &= entry.getValue();
 		}
@@ -80,8 +71,8 @@ public class PostBoundaryRulesProcessor implements BoundaryProcessor {
 	}
 	
 	@Override
-	public boolean isIncompleteSentence(String text) {
-		return isCompleteSentence(text);
+	public boolean isIncompleteSentence(String candidate_after_boundary) {
+		return !isCompleteSentence(candidate_after_boundary);
 	}
 }
 

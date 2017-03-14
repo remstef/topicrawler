@@ -23,10 +23,12 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.LineIterator;
 import org.junit.Test;
 
+import de.tudarmstadt.lt.seg.SegmentType;
 import de.tudarmstadt.lt.seg.app.Segmenter;
 import de.tudarmstadt.lt.seg.token.DiffTokenizer;
 import de.tudarmstadt.lt.seg.token.EmptySpaceTokenizer;
@@ -48,7 +50,8 @@ public class SentenceSplitterTest {
 			+ " manifestieren. Hochtechnisierte und hochgerüstete Staaten werden sich"
 			+ " hier in romantischen Rückbesinnungen auf völkische Ursprünge definieren"
 			+ " und Konflikte globaler Dimensionen austragen, die die Welt neu ordnen"
-			+ " werden. Es geht aus der Sicht der Haushalte des 17. und 18. Jahrhunderts darum, den Abfluss von Edelmetall ins Ausland zu verhindern.";
+			+ " werden. Es geht aus der Sicht der Haushalte des 17. und 18. Jahrhunderts darum, den Abfluss von Edelmetall ins Ausland zu verhindern.\n"
+			+ "In the 1920s he was also a contributor to \"Vanity Fair\" and British \"Vogue\" magazines.\nBloomsbury Set.\\nDuring World War I, Huxley spent much of his time at Garsington Manor near Oxford, home of Lady Ottoline Morrell, working as a farm labourer.";
 
 	@Test
 	public void breakSplitterTest() {
@@ -82,12 +85,14 @@ public class SentenceSplitterTest {
 
 	@Test
 	public void ruleSplitterTest(){
-		ISentenceSplitter s = new RuleSplitter().init(TEST_TEXT);
+		final AtomicInteger n = new AtomicInteger(0);
+		ISentenceSplitter s = new RuleSplitter().initParam("default", false).init(TEST_TEXT);
 		System.out.format("+++ %s +++ %n", s.getClass().getName());
-		s.forEach(System.out::println);
+		s.forEach(seg -> {if(seg.type == SegmentType.SENTENCE) n.incrementAndGet(); System.out.println(seg);});
 		System.out.println("+++");
 		s.init(TokenizerTest.TEST_TEXT);
-		s.forEach(System.out::println);
+		s.forEach(seg -> {if(seg.type == SegmentType.SENTENCE) n.incrementAndGet(); System.out.println(seg);});
+		System.out.format("%d sentences.%n", n.get());
 	}
 
 	@Test

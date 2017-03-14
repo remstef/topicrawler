@@ -17,6 +17,7 @@ package de.tudarmstadt.lt.seg.token;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -88,9 +89,11 @@ public interface ITokenizer extends Iterator<Segment>, Iterable<Segment>{
 				if(level >= 3)
 					segments = segments.filter(Segment::isReadable);					  // remove non-readable and unclassified segments
 				if(level >= 4)
-					segments = segments.filter(x -> x.type != SegmentType.PUNCTUATION);	// remove punctuation
+					segments = segments.filter(x -> x.type != SegmentType.PUNCT);	// remove punctuation
 				if(level >= 5)
-					segments = segments.filter(x -> x.type != SegmentType.NUMBER && x.type != SegmentType.WORD_WITH_NUMBER);	// remove numbers
+					segments = segments.filter(x -> !EnumSet.of(SegmentType.META, SegmentType.URI, SegmentType.EMAIL, SegmentType.EMO).contains(x.type));	// remove metadata stuff
+				if(level >= 6)
+					segments = segments.filter(x -> !EnumSet.of(SegmentType.WORD_WITH_NUMBER, SegmentType.NUMBER, SegmentType.DATE, SegmentType.PHONE, SegmentType.TIME).contains(x.type));	// remove numbers
 				if(mergetypes){
 					final Iterator<Segment> segments_iter = segments.iterator();
 					segments = StreamSupport.stream(SegmentationUtils.mergeConsectutiveTypes(new Iterable<Segment>() {

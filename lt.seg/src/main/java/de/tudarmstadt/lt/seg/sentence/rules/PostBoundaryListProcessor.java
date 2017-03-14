@@ -50,14 +50,13 @@ public class PostBoundaryListProcessor implements BoundaryProcessor {
 			_shortest_exception = 0;
 	}
 
-	public boolean isIncompleteSentence(String text) {
-		// try to find the first token, approximate heuristically by using emptyspaces TODO: use a sophisticated ITokenizer e.g. DiffTokenizer
-		int first_token_end;
-		for(first_token_end = 1; first_token_end < text.length(); first_token_end++)
-			if(SegmentationUtils.charIsEmptySpace(text.codePointAt(first_token_end)))
-				break;
-		String first_token = text.substring(0,first_token_end); 
-		return _exception.contains(first_token);
+	public boolean isIncompleteSentence(String candidate_after_boundary) { 
+		return _exception.contains(candidate_after_boundary);
+	}
+
+	@Override
+	public boolean isCompleteSentence(String candidate_after_boundary) {
+		return !isIncompleteSentence(candidate_after_boundary);
 	}
 
 }

@@ -55,7 +55,7 @@ public class PreBoundaryListProcessor implements BoundaryProcessor {
 		int end_suffix = text.length(); 
 		while(end_suffix > 0 && SegmentationUtils.charIsEmptySpace(text.codePointAt(--end_suffix)));
 		
-		// try to find the last token, approximate heuristically by using empty spaces
+		// try to find the last token in the text before the boundary was found, approximate heuristically by using empty spaces
 		int begin_suffix;
 		for(begin_suffix = end_suffix; begin_suffix >= 0; --begin_suffix)
 			if(SegmentationUtils.charIsEmptySpace(text.codePointAt(begin_suffix)))
@@ -66,5 +66,10 @@ public class PreBoundaryListProcessor implements BoundaryProcessor {
 		
 		String rev_suffix = SegmentationUtils.reversed(last_token);
 		return _reversed_exceptions.contains(rev_suffix);
+	}
+
+	@Override
+	public boolean isCompleteSentence(String candidate) {
+		return !isIncompleteSentence(candidate);
 	}
 }

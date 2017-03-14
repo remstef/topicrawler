@@ -31,62 +31,78 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Steffen Remus.
- * @deprecated use {@link NamedLookaheadRules} instead
  */
-@Deprecated
-public class LookaheadRules {
+public class NamedLookaheadRules {
 
-    Map<Pattern, Boolean> _patterns = Collections.emptyMap();
-    List<Pattern> _global_reject_patterns = Collections.emptyList();
+    Pattern[] _patterns = new Pattern[0];
+    boolean[] _decisions = new boolean[0];
+    SegmentType[] _names = new SegmentType[0];
+    Pattern[] _global_reject_patterns = new Pattern[0];
 
     static {
         try{
-            DEFAULT = new LookaheadRules();
+            DEFAULT = new NamedLookaheadRules();
         }catch(Exception e){
             throw new IllegalStateException();
         }
     }
 
-    public static final LookaheadRules DEFAULT;
+    public static final NamedLookaheadRules DEFAULT;
 
-    private LookaheadRules() throws Exception {
+    private NamedLookaheadRules() throws Exception {
         this(Thread.currentThread().getContextClassLoader().getResource("rulesets/token/default/lookahead-rules.txt"), Charset.forName("UTF-8"));
     }
 
-    public LookaheadRules(URL lookahead_list_file, Charset cs) throws Exception {
+    public NamedLookaheadRules(URL lookahead_list_file, Charset cs) throws Exception {
         this(new InputStreamReader(lookahead_list_file.openStream(), cs));
     }
+    
+    public void extendPatternArrays(){
+    	_patterns = Arrays.copyOf(_patterns, _patterns.length+1);
+    	_decisions = Arrays.copyOf(_decisions, _patterns.length);
+    	_names = Arrays.copyOf(_names, _patterns.length);
+    }
 
-    public LookaheadRules(InputStreamReader r) throws Exception {
-        _patterns = new LinkedHashMap<>(); // insertion order is important
-        _global_reject_patterns = new LinkedList<>();
+    public NamedLookaheadRules(InputStreamReader r) throws Exception {
+        if(_patterns.length > 0)
+        	throw new IllegalStateException("Rules are already defined. Rules should be read only once!");
+        
         final BufferedReader br = new BufferedReader(r);
         for(String line; (line = br.readLine()) != null;){
             if (line.trim().isEmpty() || line.startsWith("#"))
                 continue;
 
-            String decision = line.substring(0,1); // '+' or '-'
-            if( !(decision.equals("-") || decision.equals("+")) ){
+            char decision = line.charAt(0); // '+' or '-'
+            if( !('-' == decision || '+' == decision) ){
                 System.err.format("Unable to parse line '%s' in lookahead-rules-file. Please specify a decision using '+ '/'- ' in at the beginning of a line in front of the pattern.", line);
                 continue;
             }
 
+            String name = SegmentType.UNSPECIFIED.toString();
+            int pattern_begin_index = line.indexOf(' ', 1)+1;
+            if(':'  == line.charAt(1) && pattern_begin_index > 2)
+            	name = line.substring(2, pattern_begin_index).trim();
+            
             try{
-            	int pattern_start = line.indexOf(' ') + 1;
-                Pattern pattern = Pattern.compile("^" + line.substring(pattern_start), Pattern.CANON_EQ);
-                _patterns.put(pattern, decision.equals("+"));
+                Pattern pattern = Pattern.compile("^" + line.substring(pattern_begin_index), Pattern.CANON_EQ);
+                int index = _patterns.length;
+                extendPatternArrays();
+                _patterns[index] = pattern;
+                _decisions[index] = ('+' == decision);
+                _names[index] = SegmentType.valueOf(name); // throws error if not defined
             }catch(Exception e){
                 e.printStackTrace();
             }
         }
         // put the first negative patterns that occur before any positive pattern occurs into a special global reject list and remove it from the pattern map
-        for(Iterator<Map.Entry<Pattern, Boolean>> pattern_iterator = _patterns.entrySet().iterator(); pattern_iterator.hasNext();) {
-            Map.Entry<Pattern, Boolean> pattern = pattern_iterator.next();
-            if(pattern.getValue())
-                break;
-            _global_reject_patterns.add(pattern.getKey());
-            pattern_iterator.remove();
+        int l = 0; for(; _decisions[l] && l < _patterns.length; l++);
+        if(l > 0){
+	        _global_reject_patterns = Arrays.copyOfRange(_patterns, 0, l);
+	        _patterns = Arrays.copyOfRange(_patterns, l, _patterns.length);
+	        _decisions = Arrays.copyOfRange(_decisions, l, _decisions.length);
+	        _names = Arrays.copyOfRange(_names, l, _names.length);
         }
+        
     }
 
     public boolean find_next_token(Deque<Segment> lookahead_buffer) {
@@ -96,12 +112,15 @@ public class LookaheadRules {
         Segment next_segment = lookahead_buffer.poll();
 
         String match = null;
-        positive_loop: for(Iterator<Map.Entry<Pattern, Boolean>> pattern_iterator = _patterns.entrySet().iterator(); pattern_iterator.hasNext();) {
-            Map.Entry<Pattern, Boolean> next_pattern = pattern_iterator.next();
-            if(!next_pattern.getValue()) // skip negative patterns
+        SegmentType match_type = SegmentType.UNSPECIFIED;
+        positive_loop: for(int i = 0; i < _patterns.length; i++) {
+        	Pattern next_pattern = _patterns[i];
+        	boolean decision = _decisions[i];
+        	match_type = _names[i];
+            if(!decision) // skip negative patterns
                 continue;
-            assert next_pattern.getValue() : "this loop should only go over positive patterns";
-            Matcher pos_m = next_pattern.getKey().matcher(string_segments);
+            assert decision : "this loop should only go over positive patterns";
+            Matcher pos_m = next_pattern.matcher(string_segments);
             if(pos_m.find() && pos_m.start() == 0){
 
                 match = pos_m.group();
@@ -129,13 +148,13 @@ public class LookaheadRules {
                     }
                 }
 
-                while(pattern_iterator.hasNext()) { // check if there are negative patterns following
-                    next_pattern = pattern_iterator.next();
+                for(int j = i+1; j < _patterns.length; j++){
+                    next_pattern = _patterns[j];
                     // if next pattern is a positive rule break the outer loop, because we found a match with no matching negative rule
-                    if(next_pattern.getValue())
+                    if(_decisions[j])
                         break positive_loop;
                     // else check first if negative pattern matches
-                    Matcher neg_m = next_pattern.getKey().matcher(match);
+                    Matcher neg_m = next_pattern.matcher(match);
                     // if so, we continue the positive rule loop, and skip any following negative rules
                     if(neg_m.matches()) {
                         match = null;
@@ -143,7 +162,7 @@ public class LookaheadRules {
                     }
                     // if not continue the negative loop, maybe there is still a rule to come that matches
                 }
-
+                match = null;
                 break;
 
             }
@@ -151,12 +170,16 @@ public class LookaheadRules {
         }
 
         if(match != null) {
-            next_segment.type = SegmentType.WORD;
+            next_segment.type = match_type;
             // fast forward
             while (!lookahead_buffer.isEmpty() && lookahead_buffer.peek().end <= next_segment.begin + match.length())
                 next_segment.end = lookahead_buffer.poll().end;
             next_segment.text.setLength(0);
-            next_segment.text.append(string_segments.substring(0, next_segment.end - next_segment.begin));
+            try{
+            	next_segment.text.append(string_segments.substring(0, next_segment.end - next_segment.begin));
+            }catch(Exception e){
+            	e.printStackTrace();
+            }
         }
 
         lookahead_buffer.offerFirst(next_segment);
