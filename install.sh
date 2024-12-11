@@ -15,7 +15,7 @@ fi
 
 # download ltbot if doesn't exist
 if [ ! -e "lt.ltbot-${VERSION}-dist.tar.gz" ]; then
-    wget https://github.com/tudarmstadt-lt/topicrawler/releases/download/v${VERSION}/lt.ltbot-${VERSION}-dist.tar.gz
+    wget https://github.com/remstef/topicrawler/releases/download/v${VERSION}/lt.ltbot-${VERSION}-dist.tar.gz
 fi
 
 tar -xvzf lt.ltbot-*.tar.gz --strip-components 1 -C heritrix-3.2.0
